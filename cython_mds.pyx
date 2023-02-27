@@ -31,24 +31,34 @@ cdef  Pair * fisheryates(Pair *arr, int n):
 cdef float get_step_size():
     return 0.01
 
-cdef float* sgd(float *pos, Pair *pairs, int n_iter, int n_pairs):
-    cdef float step, dist
-    cdef int epoch, p, i, j
-
+cdef double sgd(double *X, Pair *pairs, int n_vert,int n_pairs):
+    cdef int n_iter = 10
+    
     for epoch in range(n_iter):
-        step = get_step_size()
-
         for p in range(n_pairs):
-            i = pairs[p].u
-            j = pairs[p].v
-            dist = pairs[p].dist
-
-            x1,y1 = pos[i*2], pos[i*2 + 1]
-            x2,y2 = pos[j*2], pos[j*2 + 1]
-
-
+            Pair pair = pairs[p]
+            cdef int i = pair.u 
+            cdef int j = pair.v 
+            cdef float dist = pair.dist
+            cdef float weight = pair.weight
+    return 0.0
 
 
+cdef Pair *dummy_pair(int n_vertices):
+    cdef int n = (n_vertices * (n_vertices - 1 )) / 2
+    cdef Pair *pairs = <Pair *> malloc(
+        n * sizeof(Pair)
+    )
+    cdef int u,v, i
+    i = 0
+    for u in range(n):
+        for v in range(u):
+            pairs[i].u = u
+            pairs[i].v = v 
+            pairs[i].dist = 1.0
+            pairs[i].weight = 1.0
+            i += 1
+    return pairs
 
 
 
@@ -74,3 +84,16 @@ def shuffle(d):
 def get_pair():
     ptr = Pair(1,2,3.0)
     return ptr
+
+def test_sgd():
+    cdef int n = 50
+    cdef int i
+    cdef double *pos = <double *> malloc(n * sizeof(double))
+    for i in range(n):
+        pos[i] = i
+    cdef Pair *pairs = dummy_pair(n)
+    cdef double s
+    s = sgd(pos,n)
+    free(pos)
+    print(s)
+    return s
