@@ -1,5 +1,7 @@
 import numpy as np 
 
+#This resource is good: https://byumcl.bitbucket.io/bootcamp2014/_downloads/Lab20v1.pdf
+
 cimport numpy as np
 cimport cython
 
@@ -59,9 +61,9 @@ cdef double *sgd(double *X, Pair *pairs, int n_vert,int n_pairs):
             r_x = r*dx 
             r_y = r*dy
 
-            X[i*2] -= r_x 
-            X[i*2+1] -= r_y 
-            X[j*2] += r_x 
+            X[i*2] -= r_x
+            X[i*2+1] -= r_y
+            X[j*2] += r_x
             X[j*2+1] += r_y
 
 
@@ -120,6 +122,6 @@ def test_sgd():
         pos[i] = i
     cdef Pair *pairs = dummy_pair(n)
     pos = sgd(pos, pairs, n, (n*(n-1))/2)
-    cdef double[:] view1 = pos 
+    view1 = np.asarray(<np.float32_t[:2*n]> pos)
     free(pos)
     return view1
