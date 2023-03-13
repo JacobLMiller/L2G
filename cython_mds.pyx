@@ -3,25 +3,23 @@ import numpy as np
 #This resource is good: https://byumcl.bitbucket.io/bootcamp2014/_downloads/Lab20v1.pdf
 
 cimport numpy as np
+from numpy cimport ndarray as ar
 cimport cython
 
 from libc.stdlib cimport rand, malloc, free
-from libc.math cimport sqrt
+from libc.math cimport sqrt, log, exp
 
 cdef struct Pair:
     int u 
     int v 
     double d
     double w
-
-cdef struct Vertex:
-    float x
-    float y
+    int in_neighbor
 
 ctypedef Pair Pair_t
 
 
-cdef  Pair * fisheryates(Pair *arr, int n):
+cdef void fisheryates(Pair *arr, int n):
     cdef Pair tmp
 
     for i in range(n-1,0,-1):
@@ -29,20 +27,47 @@ cdef  Pair * fisheryates(Pair *arr, int n):
         j = rand() % i 
         arr[i] = arr[j]
         arr[j] = tmp
-    return arr
 
-cdef float get_step_size():
-    return 0.01
+@cython.cdivision(True)
+cdef ar[double] schedule_convergent(Pair *pairs, int n_pairs, int t_max, double eps, int t_maxmax):
+    cdef double w_min, w_max, new_val, eta
+    w_min = (1/(pairs[0].d**2))
+    w_max = w_min 
+    for i in range(1,n_pairs):
+        new_val = 1/(pairs[i].d ** 2)
+        if new_val > w_max: w_max = new_val 
+        if new_val < w_min: w_min = new_val 
 
-cdef double *sgd(double *X, Pair *pairs, int n_vert,int n_pairs):
-    cdef int n_iter = 10
-    cdef int epoch, p
+    cdef double eta_max, eta_min 
+    eta_max = 1.0 / w_min 
+    eta_min = eps / w_max 
+
+    cdef int t
+    cdef double lamb = log( eta_max/eta_min ) / (t_max-1)
+    cdef double eta_switch = 1.0/w_max 
+    cdef ar[double] etas = np.zeros(t_maxmax)
+    for t in range(t_maxmax):
+        eta = eta_max * exp(-lamb*t)
+        if (eta < eta_switch): break 
+        etas[t] = eta
+    cdef int tau = t 
+    for t in range(tau,t_maxmax):
+        eta = eta_switch / (1 + lamb*(t-tau))
+        etas[t] = eta 
+    
+    return etas
+        
+
+@cython.cdivision(True)
+cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int n_pairs):
+    cdef int epoch, p, i, j
+    cdef int n_iter = steps.shape[0]
     cdef Pair pair
-    cdef int i, j 
     cdef double d_ij, w_ij, mu, step, dx, dy, mag, r, r_x, r_y
     
     for epoch in range(n_iter):
-        step = 0.01
+        step = steps[epoch]
+        fisheryates(pairs,n_pairs)
         for p in range(n_pairs):
             pair = pairs[p]
             i = pair.u
@@ -66,62 +91,44 @@ cdef double *sgd(double *X, Pair *pairs, int n_vert,int n_pairs):
             X[j*2] += r_x
             X[j*2+1] += r_y
 
-
-
-            
     return X
 
 
-cdef Pair *dummy_pair(int n_vertices):
-    cdef int n = (n_vertices * (n_vertices - 1 )) / 2
+cdef Pair *get_pairs(ar[double, ndim=2] d):
+    cdef int n = d.shape[0]
+    cdef int n_pairs = (n * (n-1) ) / 2
     cdef Pair *pairs = <Pair *> malloc(
-        n * sizeof(Pair)
+        n_pairs * sizeof(Pair)
     )
-    cdef int u,v, i
+
+    cdef int i,u,v 
     i = 0
-    for u in range(n_vertices):
+    for u in range(n):
         for v in range(u):
-            pairs[i].u = u
+            pairs[i].u = u 
             pairs[i].v = v 
-            pairs[i].d = 1.0
+            pairs[i].d = d[u,v]
             pairs[i].w = 1.0
+            pairs[i].in_neighbor = 1
             i += 1
     return pairs
 
 
+def standard_mds(d,n_iter = 200, init_pos = None):
+    cdef int n = d.shape[0]
+    cdef int n_pairs = (n*(n-1))/2
+    cdef ar[double] pos = np.random.uniform(-1,1,2*n)
+    if init_pos: pos = init_pos
 
-def shuffle(d):
-    cdef int n = (len(d) * (len(d)-1)) / 2
-    cdef int i = 0
+    cdef Pair *pairs = get_pairs(d)
 
+    cdef ar[double] steps = schedule_convergent(pairs,n_pairs,30,0.01,200)
 
-    cdef Pair *pairs = <Pair *> malloc(
-        n * sizeof(Pair))
-    for u in range(len(d)):
-        for v in range(u):
-            pairs[i].u = u
-            pairs[i].v = v 
-            pairs[i].dist = d[u,v]
+    pos = sgd(pos,pairs,steps,n,n_pairs)
 
-            i += 1
-    pairs = fisheryates(pairs,n)
-    print(pairs[0])
-    
+    free(pairs)
 
+    return pos.reshape((n,2))
 
-
-
-
-
-
-def test_sgd():
-    cdef int n = 50
-    cdef int i
-    cdef double *pos = <double *> malloc(2 * n * sizeof(double))
-    for i in range(2*n):
-        pos[i] = i
-    cdef Pair *pairs = dummy_pair(n)
-    pos = sgd(pos, pairs, n, (n*(n-1))/2)
-    view1 = np.asarray(<np.float32_t[:2*n]> pos)
-    free(pos)
-    return view1
+def L2G(d,w,n_iter,init_pos):
+    pass
