@@ -7,8 +7,8 @@ Run the following command for dynamic lib
 python setup.py build_ext --inplace
 """
 setup(ext_modules= cythonize(Extension(
-    'cython_mds',
-    sources=['cython_mds.pyx'],
+    'cython_l2g',
+    sources=['modules/cython_l2g.pyx'],
     language='c',
     include_dirs=[numpy.get_include()],
     library_dirs=[],
@@ -16,3 +16,8 @@ setup(ext_modules= cythonize(Extension(
     extra_compile_args=[],
     extra_link_args=[]
 )))
+
+import shutil
+
+s = "cython_l2g.cpython-39-x86_64-linux-gnu.so"
+shutil.move(s, f"modules/{s}")

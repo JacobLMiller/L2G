@@ -1,0 +1,7 @@
+graph G {
+0 [name=function];
+1 [name="write(filepath,"];
+2 [name=""];
+3 [name=end];
+0--1  [c0="outpath)"];
+}
