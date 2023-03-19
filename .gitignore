@@ -1,5 +1,7 @@
 
 .nfs*
+viz_scripts/figures/
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
