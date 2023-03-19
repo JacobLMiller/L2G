@@ -70,9 +70,9 @@ cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int 
     for epoch in range(n_iter):
         step = steps[epoch]
         fisheryates(pairs,n_pairs)
-        if epoch > 31: 
-            t = 0.
-            l_sum = 1 + t
+        # if epoch > 31: 
+        #     t = 0.
+        #     l_sum = 1 + t
         for p in range(n_pairs):
             pair = pairs[p]
             i = pair.u

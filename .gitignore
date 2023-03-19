@@ -2,6 +2,8 @@
 .nfs*
 viz_scripts/figures/
 *.pkl
+graphs/
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

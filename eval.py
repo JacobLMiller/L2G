@@ -2,6 +2,7 @@ import numpy as np
 import graph_tool.all as gt
 import time
 from tqdm import tqdm 
+import s_gd2
 
 from modules.metrics import get_stress,get_neighborhood
 from modules.graph_metrics import compute_graph_cluster_metrics, get_cluster_ids, apsp
@@ -10,6 +11,8 @@ from modules.L2G import find_neighbors
 from modules.cython_l2g import L2G_opt, standard_mds
 
 from modules.thesne import tsnet
+
+from modules.graph_io import draw_tsnet_like as draw
 
 
 K = [4,8,16,32,64,85,100,150,200,400,600]
@@ -39,14 +42,14 @@ def diffusion_weights(d,a=5, k = 20, sigma=1):
     return w
 
 
-def draw(G,X,output=None):
-    pos = G.new_vp('vector<float>')
-    pos.set_2d_array(X.T)
-    #
-    if output:
-        gt.graph_draw(G,pos=pos,output=output)
-    else:
-        gt.graph_draw(G,pos=pos)
+# def draw(G,X,output=None):
+#     pos = G.new_vp('vector<float>')
+#     pos.set_2d_array(X.T)
+#     #
+#     if output:
+#         gt.graph_draw(G,pos=pos,output=output)
+#     else:
+#         gt.graph_draw(G,pos=pos)
 
 
 def embed_l2g(d,num_params,name,G,f_name="transformation"):
@@ -57,7 +60,7 @@ def embed_l2g(d,num_params,name,G,f_name="transformation"):
         w = find_neighbors(G,k=k,a=10)
         X = L2G_opt(d,w)
 
-        outstr = f"drawings/l2g/{name}_{k}.png"
+        outstr = f"drawings/l2g/{name}_{k}.pdf"
         outs.append(outstr)
         Xs.append(X)
 
@@ -66,20 +69,22 @@ def embed_l2g(d,num_params,name,G,f_name="transformation"):
 def embed_tsne(d,num_params,name,G):
     X = tsnet(d)
 
-    outstr = f"drawings/tsne/{name}.png"
+    outstr = f"drawings/tsne/{name}.pdf"
     return [X], [outstr]
 
 def embed_mds(d,num_params,name,G):
-    X = standard_mds(d)
+    E = np.array([(u,v) for u,v in G.iter_edges()],dtype=np.int32)
+    I,J = E[:,0], E[:,1]
+    X = s_gd2.layout(I,J)
 
-    outstr = f"drawings/mds/{name}.png"
+    outstr = f"drawings/mds/{name}.pdf"
     return [X], [outstr]
 
 def embed_umap(d,num_params,name,G):
     from umap import UMAP
     X = UMAP(metric="precomputed").fit_transform(d)
 
-    outstr = f"drawings/umap/{name}.png"
+    outstr = f"drawings/umap/{name}.pdf"
     return [X], [outstr]
 
 
@@ -88,7 +93,7 @@ def get_zeros(n):
 
 
 #Function that takes a graph, embedding function, parameter range, num_params, num_repeats
-#Returns list of NP, stress, and draws at drawings/func_name/num_params.png
+#Returns list of NP, stress, and draws at drawings/func_name/num_params.pdf
 def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None,state=None):
 
     g_name, _ = g_name.split(".")
@@ -102,6 +107,7 @@ def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None,state=None):
         Xs, output = f(d,num_params,g_name,G)
         end = time.perf_counter()
 
+
         NE += np.array( [get_neighborhood(X,d) for X in Xs] )
         stress += np.array([get_stress(X,d) for X in Xs])
         times += (end-start)/len(Xs)
@@ -111,9 +117,7 @@ def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None,state=None):
         m2 += m[:,1] 
 
         for X,out in zip(Xs,output):
-            pos = G.new_vp("vector<float>")
-            pos.set_2d_array(X.T)
-            state.draw(pos=pos,output=out,vertex_color="black")
+            draw(G,X,out)
 
     
     NE /= num_repeats 
@@ -157,15 +161,6 @@ def experiment(n=5):
     for graph in tqdm(graph_paths):
         G = gt.load_graph(f"{path+graph}")
 
-        degs = G.degree_property_map("total")
-        to_rem = list()
-        for i,deg in enumerate(degs):
-            if deg < 1: 
-                to_rem.append(i)
-        G.remove_vertex(to_rem)
-        if "dagstuhl" not in graph: continue
-
-
         c_ids, state = get_cluster_ids(G)
         d = apsp(G)
         for f_name, f in e_funcs.items():
@@ -177,11 +172,11 @@ def experiment(n=5):
             data[f_name][graph]["m1"] = m1
             data[f_name][graph]["m2"] = m2
     
-            filehandler = open("dagstuhl.pkl", 'wb') 
+            filehandler = open("data/03_19.pkl", 'wb') 
             pickle.dump(data, filehandler)
             filehandler.close()
 
     
 
 if __name__ == '__main__':
-    experiment(n=15)
+    experiment(n=30)

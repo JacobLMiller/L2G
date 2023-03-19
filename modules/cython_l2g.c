@@ -2536,8 +2536,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
   int __pyx_t_6;
   int __pyx_t_7;
   int __pyx_t_8;
-  int __pyx_t_9;
-  double __pyx_t_10;
+  double __pyx_t_9;
+  int __pyx_t_10;
   Py_ssize_t __pyx_t_11;
   double __pyx_t_12;
   int __pyx_lineno = 0;
@@ -2607,7 +2607,7 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *     for epoch in range(n_iter):
  *         step = steps[epoch]             # <<<<<<<<<<<<<<
  *         fisheryates(pairs,n_pairs)
- *         if epoch > 31:
+ *         # if epoch > 31:
  */
     __pyx_t_4 = __pyx_v_epoch;
     __pyx_t_5 = -1;
@@ -2625,62 +2625,25 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *     for epoch in range(n_iter):
  *         step = steps[epoch]
  *         fisheryates(pairs,n_pairs)             # <<<<<<<<<<<<<<
- *         if epoch > 31:
- *             t = 0.
+ *         # if epoch > 31:
+ *         #     t = 0.
  */
     __pyx_f_10cython_l2g_fisheryates(__pyx_v_pairs, __pyx_v_n_pairs);
 
-    /* "cython_l2g.pyx":73
- *         step = steps[epoch]
- *         fisheryates(pairs,n_pairs)
- *         if epoch > 31:             # <<<<<<<<<<<<<<
- *             t = 0.
- *             l_sum = 1 + t
- */
-    __pyx_t_6 = ((__pyx_v_epoch > 31) != 0);
-    if (__pyx_t_6) {
-
-      /* "cython_l2g.pyx":74
- *         fisheryates(pairs,n_pairs)
- *         if epoch > 31:
- *             t = 0.             # <<<<<<<<<<<<<<
- *             l_sum = 1 + t
- *         for p in range(n_pairs):
- */
-      __pyx_v_t = 0.;
-
-      /* "cython_l2g.pyx":75
- *         if epoch > 31:
- *             t = 0.
- *             l_sum = 1 + t             # <<<<<<<<<<<<<<
- *         for p in range(n_pairs):
- *             pair = pairs[p]
- */
-      __pyx_v_l_sum = (1.0 + __pyx_v_t);
-
-      /* "cython_l2g.pyx":73
- *         step = steps[epoch]
- *         fisheryates(pairs,n_pairs)
- *         if epoch > 31:             # <<<<<<<<<<<<<<
- *             t = 0.
- *             l_sum = 1 + t
- */
-    }
-
     /* "cython_l2g.pyx":76
- *             t = 0.
- *             l_sum = 1 + t
+ *         #     t = 0.
+ *         #     l_sum = 1 + t
  *         for p in range(n_pairs):             # <<<<<<<<<<<<<<
  *             pair = pairs[p]
  *             i = pair.u
  */
     __pyx_t_5 = __pyx_v_n_pairs;
-    __pyx_t_7 = __pyx_t_5;
-    for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
-      __pyx_v_p = __pyx_t_8;
+    __pyx_t_6 = __pyx_t_5;
+    for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
+      __pyx_v_p = __pyx_t_7;
 
       /* "cython_l2g.pyx":77
- *             l_sum = 1 + t
+ *         #     l_sum = 1 + t
  *         for p in range(n_pairs):
  *             pair = pairs[p]             # <<<<<<<<<<<<<<
  *             i = pair.u
@@ -2695,8 +2658,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             j = pair.v
  *             d_ij = pair.d
  */
-      __pyx_t_9 = __pyx_v_pair.u;
-      __pyx_v_i = __pyx_t_9;
+      __pyx_t_8 = __pyx_v_pair.u;
+      __pyx_v_i = __pyx_t_8;
 
       /* "cython_l2g.pyx":79
  *             pair = pairs[p]
@@ -2705,8 +2668,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             d_ij = pair.d
  *             w_ij = pair.w
  */
-      __pyx_t_9 = __pyx_v_pair.v;
-      __pyx_v_j = __pyx_t_9;
+      __pyx_t_8 = __pyx_v_pair.v;
+      __pyx_v_j = __pyx_t_8;
 
       /* "cython_l2g.pyx":80
  *             i = pair.u
@@ -2715,8 +2678,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             w_ij = pair.w
  * 
  */
-      __pyx_t_10 = __pyx_v_pair.d;
-      __pyx_v_d_ij = __pyx_t_10;
+      __pyx_t_9 = __pyx_v_pair.d;
+      __pyx_v_d_ij = __pyx_t_9;
 
       /* "cython_l2g.pyx":81
  *             j = pair.v
@@ -2725,8 +2688,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  * 
  *             mu = step * w_ij
  */
-      __pyx_t_10 = __pyx_v_pair.w;
-      __pyx_v_w_ij = __pyx_t_10;
+      __pyx_t_9 = __pyx_v_pair.w;
+      __pyx_v_w_ij = __pyx_t_9;
 
       /* "cython_l2g.pyx":83
  *             w_ij = pair.w
@@ -2744,8 +2707,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  * 
  *             dx = X[i*2] - X[j*2]
  */
-      __pyx_t_6 = ((__pyx_v_mu > 1.0) != 0);
-      if (__pyx_t_6) {
+      __pyx_t_10 = ((__pyx_v_mu > 1.0) != 0);
+      if (__pyx_t_10) {
         __pyx_v_mu = 1.0;
       }
 
@@ -2757,23 +2720,23 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             mag = sqrt(dx*dx + dy*dy)
  */
       __pyx_t_4 = (__pyx_v_i * 2);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_4 < 0) {
         __pyx_t_4 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_4 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_4 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 86, __pyx_L1_error)
       }
       __pyx_t_11 = (__pyx_v_j * 2);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_11 < 0) {
         __pyx_t_11 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_11 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_11 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_11 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_11 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 86, __pyx_L1_error)
       }
       __pyx_v_dx = ((*__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_X.diminfo[0].strides)) - (*__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_11, __pyx_pybuffernd_X.diminfo[0].strides)));
@@ -2786,23 +2749,23 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  * 
  */
       __pyx_t_11 = ((__pyx_v_i * 2) + 1);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_11 < 0) {
         __pyx_t_11 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_11 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_11 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_11 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_11 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 87, __pyx_L1_error)
       }
       __pyx_t_4 = ((__pyx_v_j * 2) + 1);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_4 < 0) {
         __pyx_t_4 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_4 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_4 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 87, __pyx_L1_error)
       }
       __pyx_v_dy = ((*__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_11, __pyx_pybuffernd_X.diminfo[0].strides)) - (*__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_X.diminfo[0].strides)));
@@ -2859,8 +2822,8 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             gx,gy = dx/mag, dy/mag
  *             repx,repy = (1-w_ij) * (-mu * gx), (1-w_ij) * (-mu * gy)
  */
-      __pyx_t_6 = ((__pyx_v_mu > 1.0) != 0);
-      if (__pyx_t_6) {
+      __pyx_t_10 = ((__pyx_v_mu > 1.0) != 0);
+      if (__pyx_t_10) {
         __pyx_v_mu = 1.0;
       }
 
@@ -2871,9 +2834,9 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             repx,repy = (1-w_ij) * (-mu * gx), (1-w_ij) * (-mu * gy)
  *             repx /= mag
  */
-      __pyx_t_10 = (__pyx_v_dx / __pyx_v_mag);
+      __pyx_t_9 = (__pyx_v_dx / __pyx_v_mag);
       __pyx_t_12 = (__pyx_v_dy / __pyx_v_mag);
-      __pyx_v_gx = __pyx_t_10;
+      __pyx_v_gx = __pyx_t_9;
       __pyx_v_gy = __pyx_t_12;
 
       /* "cython_l2g.pyx":97
@@ -2884,9 +2847,9 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             repy /= mag
  */
       __pyx_t_12 = ((1.0 - __pyx_v_w_ij) * ((-__pyx_v_mu) * __pyx_v_gx));
-      __pyx_t_10 = ((1.0 - __pyx_v_w_ij) * ((-__pyx_v_mu) * __pyx_v_gy));
+      __pyx_t_9 = ((1.0 - __pyx_v_w_ij) * ((-__pyx_v_mu) * __pyx_v_gy));
       __pyx_v_repx = __pyx_t_12;
-      __pyx_v_repy = __pyx_t_10;
+      __pyx_v_repy = __pyx_t_9;
 
       /* "cython_l2g.pyx":98
  *             gx,gy = dx/mag, dy/mag
@@ -2932,13 +2895,13 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             X[j*2] += r_x
  */
       __pyx_t_4 = (__pyx_v_i * 2);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_4 < 0) {
         __pyx_t_4 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_4 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_4 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 105, __pyx_L1_error)
       }
       *__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_X.diminfo[0].strides) -= __pyx_v_r_x;
@@ -2951,13 +2914,13 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *             X[j*2+1] += r_y
  */
       __pyx_t_4 = ((__pyx_v_i * 2) + 1);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_4 < 0) {
         __pyx_t_4 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_4 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_4 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 106, __pyx_L1_error)
       }
       *__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_X.diminfo[0].strides) -= __pyx_v_r_y;
@@ -2970,13 +2933,13 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  * 
  */
       __pyx_t_4 = (__pyx_v_j * 2);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_4 < 0) {
         __pyx_t_4 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_4 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_4 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 107, __pyx_L1_error)
       }
       *__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_X.diminfo[0].strides) += __pyx_v_r_x;
@@ -2989,13 +2952,13 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
  *     return X
  */
       __pyx_t_4 = ((__pyx_v_j * 2) + 1);
-      __pyx_t_9 = -1;
+      __pyx_t_8 = -1;
       if (__pyx_t_4 < 0) {
         __pyx_t_4 += __pyx_pybuffernd_X.diminfo[0].shape;
-        if (unlikely(__pyx_t_4 < 0)) __pyx_t_9 = 0;
-      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_9 = 0;
-      if (unlikely(__pyx_t_9 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_9);
+        if (unlikely(__pyx_t_4 < 0)) __pyx_t_8 = 0;
+      } else if (unlikely(__pyx_t_4 >= __pyx_pybuffernd_X.diminfo[0].shape)) __pyx_t_8 = 0;
+      if (unlikely(__pyx_t_8 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_8);
         __PYX_ERR(0, 108, __pyx_L1_error)
       }
       *__Pyx_BufPtrStrided1d(double *, __pyx_pybuffernd_X.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_X.diminfo[0].strides) += __pyx_v_r_y;
