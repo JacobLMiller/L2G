@@ -52,6 +52,19 @@ if __name__ == '__main__':
 
     print(f"Complete! Layout took {time.perf_counter()-start :6.4f} seconds")
 
+    from matplotlib import pyplot
+
+    e_c = np.array([ np.linalg.norm(X[i]-X[j])  for i,j in G.iter_edges()])
+    e_c -= np.min(e_c)
+    e_c /= np.max(e_c)
+
+    jet = pyplot.get_cmap("jet_r")
+    print(jet(0))
+
+    edge_c = [jet(e) for e in e_c]
+
+    edge_colors = G.new_ep("vector<float>",vals=edge_c)
+
     pos = G.new_vp("vector<float>")
     pos.set_2d_array(X.T)
-    gt.graph_draw(G,pos=pos,output=args.output)
+    gt.graph_draw(G,pos=pos,output=args.output,edge_color=edge_colors,edge_pen_width=1,vertex_fill_color="white",vertex_size=0)
