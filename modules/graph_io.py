@@ -26,6 +26,7 @@ def read_edgelist(fpath,header=False,delimiter=" "):
     return G
 
 def write_edgelist(G,fpath,delimiter=" "):
-    E = np.array([(u,v) for u,v in G.iter_edges()])
-    np.savetxt(fpath,E,delimiter=delimiter,fmt="%d")
+    E = np.array([(u,v,1) for u,v in G.iter_edges()])
+    header = f"{G.num_vertices()} {G.num_edges()}"
+    np.savetxt(fpath,E,delimiter=delimiter,fmt="%d",header=header,comments="")
 

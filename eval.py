@@ -145,10 +145,10 @@ def experiment(n=5):
 
 
     e_funcs = {
-        "l2g": embed_l2g,
-        # "tsne": embed_tsne,
-        "mds": embed_mds,
-        "umap": embed_umap
+        # "l2g": embed_l2g,
+        "tsne": embed_tsne,
+        # "mds": embed_mds,
+        # "umap": embed_umap
     }
 
     data = {
@@ -158,13 +158,14 @@ def experiment(n=5):
 
     import pickle
 
-    for graph in tqdm(graph_paths):
+    for i,graph in enumerate(tqdm(graph_paths)):
+        if i < 14: continue
         G = gt.load_graph(f"{path+graph}")
 
         c_ids, state = get_cluster_ids(G)
         d = apsp(G)
         for f_name, f in e_funcs.items():
-            if f_name == "tsne" and G.num_vertices() > 1000: continue
+            if f_name == "tsne" and G.num_vertices() > 2100: continue
             NE, stress,times,m1,m2 = embedding(G,d,f,graph,c_ids=c_ids,state=state)
             data[f_name][graph]["NE"] = 1-NE
             data[f_name][graph]["stress"] = stress
@@ -172,7 +173,7 @@ def experiment(n=5):
             data[f_name][graph]["m1"] = m1
             data[f_name][graph]["m2"] = m2
     
-            filehandler = open("data/03_19.pkl", 'wb') 
+            filehandler = open("data/tsnet2.pkl", 'wb') 
             pickle.dump(data, filehandler)
             filehandler.close()
 

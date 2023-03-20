@@ -3,6 +3,27 @@ import graph_tool.all as gt
 from modules.L2G import find_neighbors
 from modules.cython_l2g import L2G_opt
 from modules.graph_metrics import apsp
+from modules.thesne import tsnet 
+from modules.graph_io import draw_tsnet_like as draw
+
+
+def embed_tsnet(G):
+    d = apsp(G)
+    X = tsnet(d)
+    draw(G,X)
+
+def embed_umap(G):
+    from umap import UMAP 
+    d = apsp(G)
+    X = UMAP(metric="precomputed",n_neighbors=10).fit_transform(d)
+    draw(G,X)
+
+def embed_mds(G):
+    import s_gd2 
+    E = np.array([(u,v) for u,v in G.iter_edges()],dtype=np.int32)
+    I,J = E[:,0],E[:,1]
+    X = s_gd2.layout(I,J)
+    draw(G,X)
 
 def sample_k(max):
 
@@ -47,19 +68,5 @@ def measure_time(repeat=5):
 
 
 if __name__ == "__main__":
-    measure_time()
-    # G = gt.lattice((5,5))
-    # d = apsp(G)
-
-    # import time 
-    # start = time.perf_counter()
-    # print("Starting neighbor")
-    # w = find_neighbors(G,k=2,a=5)
-    # print("Starting optimization")
-    # X = L2G_opt(d,w)
-    # print(f"Optimization took {time.perf_counter()-start}s")
-
-    # pos = G.new_vp("vector<float>")
-    # pos.set_2d_array(X.T)
-
-    # gt.graph_draw(G,pos=pos)
+    G = gt.load_graph("graphs/connected_watts_1000.dot")
+    embed_mds(G)
