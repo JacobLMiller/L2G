@@ -25,6 +25,16 @@ def embed_mds(G):
     X = s_gd2.layout(I,J)
     draw(G,X)
 
+
+def gen_l2g_spectrum(G,K=[10,35,72,100,1000]):
+    d = apsp(G)
+    for k in K:
+        k = int(k) if k < G.num_vertices() else G.num_vertices() - 1
+        w = find_neighbors(G,k=k,a=50)
+        X = L2G_opt(d,w)
+        draw(G,X,f"outs/out_k{k}.png")
+
+
 def sample_k(max):
 
     accept = False
@@ -69,4 +79,4 @@ def measure_time(repeat=5):
 
 if __name__ == "__main__":
     G = gt.load_graph("graphs/connected_watts_1000.dot")
-    embed_mds(G)
+

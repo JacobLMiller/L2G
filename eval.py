@@ -145,10 +145,10 @@ def experiment(n=5):
 
 
     e_funcs = {
-        # "l2g": embed_l2g,
-        "tsne": embed_tsne,
-        # "mds": embed_mds,
-        # "umap": embed_umap
+        "l2g": embed_l2g,
+        # # "tsne": embed_tsne,
+        "mds": embed_mds,
+        "umap": embed_umap
     }
 
     data = {
@@ -159,7 +159,7 @@ def experiment(n=5):
     import pickle
 
     for i,graph in enumerate(tqdm(graph_paths)):
-        if i < 14: continue
+
         G = gt.load_graph(f"{path+graph}")
 
         c_ids, state = get_cluster_ids(G)
@@ -173,7 +173,8 @@ def experiment(n=5):
             data[f_name][graph]["m1"] = m1
             data[f_name][graph]["m2"] = m2
     
-            filehandler = open("data/tsnet2.pkl", 'wb') 
+            filehandler = open("data/03_19_2.pkl", 'wb') 
+
             pickle.dump(data, filehandler)
             filehandler.close()
 
