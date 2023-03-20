@@ -163,9 +163,11 @@ def find_sigma(X_shared, sigma_shared, N, perplexity, sigma_iters, verbose=0):
         if verbose:
             print('Finding sigmas... Iteration {0}/{1}: Perplexities in [{2:.4f}, {3:.4f}].'.format(i + 1, sigma_iters, np.exp(e.min()), np.exp(e.max())), end='\r')
         if np.any(np.isnan(np.exp(e))):
+            return False
             raise SigmaTooLowException('Invalid sigmas. The perplexity is probably too low.')
     if verbose:
         print('\nDone. Perplexities in [{0:.4f}, {1:.4f}].'.format(np.exp(e.min()), np.exp(e.max())))
+    return True
 
 
 # Perform momentum-based gradient descent on the cost function with the given
@@ -375,7 +377,10 @@ def tsnet(X, perplexity=30, Y=None, output_dims=2, n_epochs=1000,
     Y_shared = theano.shared(np.asarray(Y, dtype=floath))
 
     # Find sigmas to attain the given perplexity.
-    find_sigma(X_shared, sigma_shared, N, perplexity, sigma_iters, verbose)
+    sigma_success = False 
+    while not sigma_success:
+        sigma_success = find_sigma(X_shared, sigma_shared, N, perplexity, sigma_iters, verbose)
+        perplexity += 1
 
     # Do the optimization to find Y (the node coordinates).
     Y = find_Y(

@@ -3,8 +3,27 @@ import graph_tool.all as gt
 from modules.L2G import find_neighbors
 from modules.cython_l2g import L2G_opt
 from modules.graph_metrics import apsp
-
+from modules.thesne import tsnet 
 from modules.graph_io import draw_tsnet_like as draw
+
+
+def embed_tsnet(G):
+    d = apsp(G)
+    X = tsnet(d)
+    draw(G,X)
+
+def embed_umap(G):
+    from umap import UMAP 
+    d = apsp(G)
+    X = UMAP(metric="precomputed",n_neighbors=10).fit_transform(d)
+    draw(G,X)
+
+def embed_mds(G):
+    import s_gd2 
+    E = np.array([(u,v) for u,v in G.iter_edges()],dtype=np.int32)
+    I,J = E[:,0],E[:,1]
+    X = s_gd2.layout(I,J)
+    draw(G,X)
 
 
 def gen_l2g_spectrum(G,K=[10,35,72,100,1000]):
@@ -60,4 +79,4 @@ def measure_time(repeat=5):
 
 if __name__ == "__main__":
     G = gt.load_graph("graphs/connected_watts_1000.dot")
-    gen_l2g_spectrum(G,[72,100,1000])
+

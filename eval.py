@@ -159,14 +159,13 @@ def experiment(n=5):
     import pickle
 
     for i,graph in enumerate(tqdm(graph_paths)):
-        if graph == "grid_cluster": continue
-        if i == 15: continue
+
         G = gt.load_graph(f"{path+graph}")
 
         c_ids, state = get_cluster_ids(G)
         d = apsp(G)
         for f_name, f in e_funcs.items():
-            if f_name == "tsne" and G.num_vertices() > 1000: continue
+            if f_name == "tsne" and G.num_vertices() > 2100: continue
             NE, stress,times,m1,m2 = embedding(G,d,f,graph,c_ids=c_ids,state=state)
             data[f_name][graph]["NE"] = 1-NE
             data[f_name][graph]["stress"] = stress
@@ -175,6 +174,7 @@ def experiment(n=5):
             data[f_name][graph]["m2"] = m2
     
             filehandler = open("data/03_19_2.pkl", 'wb') 
+
             pickle.dump(data, filehandler)
             filehandler.close()
 

@@ -4,6 +4,8 @@ viz_scripts/figures/
 *.pkl
 graphs/
 data/
+drgraph_outputs/
+drawings/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
