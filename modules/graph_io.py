@@ -16,8 +16,8 @@ def draw_tsnet_like(G,X,output=None):
 
     pos = G.new_vp("vector<float>")
     pos.set_2d_array(X.T)
-    gt.graph_draw(G,pos=pos,vertex_fill_color="white",vertex_size=0,edge_color=e_clrs,edge_pen_width=1,output=output)
 
+    gt.graph_draw(G,pos=pos,vertex_fill_color="white",vertex_size=0.00001,edge_color=e_clrs,edge_pen_width=1,output=output)
 
 def read_edgelist(fpath,header=False,delimiter=" "):
     E = np.loadtxt(fpath,delimiter=delimiter,skiprows=1 if header else 0)

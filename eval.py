@@ -42,16 +42,6 @@ def diffusion_weights(d,a=5, k = 20, sigma=1):
     return w
 
 
-# def draw(G,X,output=None):
-#     pos = G.new_vp('vector<float>')
-#     pos.set_2d_array(X.T)
-#     #
-#     if output:
-#         gt.graph_draw(G,pos=pos,output=output)
-#     else:
-#         gt.graph_draw(G,pos=pos)
-
-
 def embed_l2g(d,num_params,name,G,f_name="transformation"):
     Xs = list()
     outs = list()

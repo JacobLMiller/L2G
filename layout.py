@@ -52,5 +52,5 @@ if __name__ == '__main__':
 
     print(f"Complete! Layout took {time.perf_counter()-start :6.4f} seconds")
 
-    from modules.drawing import draw_tsnet_like as draw 
+    from modules.graph_io import draw_tsnet_like as draw 
     draw(G,X,args.output)

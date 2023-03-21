@@ -152,7 +152,7 @@ def compute_graph_cluster_metrics(G,X,c_ids):
     high_d = get_cluster_distances(G,c_ids)
     low_d = find_cluster_centers(X,c_ids)
 
-    return get_stress(low_d,high_d),cluster_preservation2(high_d,pairwise_distances(low_d),c_ids)
+    return get_stress(low_d,high_d)
 
 
 if __name__ == "__main__":
