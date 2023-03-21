@@ -93,36 +93,51 @@ def measure_time(repeat=5):
         times[i] /= repeat
         np.savetxt("data/03_13_new_timeexp.txt",times)
 
+def tuple_add(t1,t2):
+    return [e1+e2 for e1,e2 in zip(t1,t2)]
+
+def compute_stats(G,n=30):
+    mds_vals = [0,0,0]
+    tsnet_vals = [0,0,0]
+    umap_vals = [0,0,0]
+    for _ in range(n):
+        mds_vals = tuple_add(mds_vals,embed_mds(G,dr=False))
+        tsnet_vals = tuple_add(tsnet_vals,embed_mds(G,dr=False))        
+        umap_vals = tuple_add(umap_vals,embed_mds(G,dr=False))
+    return [e/n for e in mds_vals], [e/n for e in tsnet_vals], [e/n for e in umap_vals]
+
+
 import pylab as plt
 if __name__ == "__main__":
     G = gt.load_graph("graphs/powerlaw500.dot")
+    mds_vals, tsnet_vals, umap_vals = compute_stats(G)
+    print(f"Average MDS val is {mds_vals} \n Average tsnet val is {tsnet_vals}\n Average umap val is {umap_vals}\n")
+    # n = 30
 
-    n = 30
+    # K = np.linspace(10,200,n,dtype=np.int32)
+    # l2g_vals = gen_l2g_spectrum(G,K)
 
-    K = np.linspace(10,200,n,dtype=np.int32)
-    l2g_vals = gen_l2g_spectrum(G,K)
+    # mds_vals = embed_mds(G,dr=False)
+    # tsnet_vals = embed_tsnet(G,dr=False)
+    # umap_vals = embed_umap(G,dr=False)
 
-    mds_vals = embed_mds(G,dr=False)
-    tsnet_vals = embed_tsnet(G,dr=False)
-    umap_vals = embed_umap(G,dr=False)
+    # titles = ["NE", "CD", "Stress"]
 
-    titles = ["NE", "CD", "Stress"]
-
-    fig,axes = plt.subplots(1,3)
+    # fig,axes = plt.subplots(1,3)
     
-    for i in range(3):
-        ax = axes[i]
+    # for i in range(3):
+    #     ax = axes[i]
 
-        ax.plot(K,l2g_vals[i],'o-',label="L2G")
-        ax.plot(K,[mds_vals[i]] * n, '-', label="MDS")
-        ax.plot(K,[tsnet_vals[i]] * n, '-', label="tsNET")
-        ax.plot(K,[umap_vals[i]] * n, '-', label="UMAP")
+    #     ax.plot(K,l2g_vals[i],'o-',label="L2G")
+    #     ax.plot(K,[mds_vals[i]] * n, '-', label="MDS")
+    #     ax.plot(K,[tsnet_vals[i]] * n, '-', label="tsNET")
+    #     ax.plot(K,[umap_vals[i]] * n, '-', label="UMAP")
 
-        ax.legend()
-        ax.set_title(titles[i])
+    #     ax.legend()
+    #     ax.set_title(titles[i])
 
 
-    plt.show()
+    # plt.show()
 
 
 
