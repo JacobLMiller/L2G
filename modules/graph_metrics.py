@@ -70,14 +70,14 @@ def apsp(G,weights=None):
     return d
 
 
-def get_cluster_ids(G: gt.Graph):
+def get_cluster_ids(G: gt.Graph,r: int):
     """
     G -> a graph-tool graph 
 
     returns a list of sets corresponding to cluster ids
     """
     state = gt.minimize_blockmodel_dl(G)
-    for _ in range(5):
+    for _ in range(r):
         tmp_state = gt.minimize_blockmodel_dl(G)
         if tmp_state.entropy() < state.entropy():
             state = tmp_state
@@ -97,9 +97,6 @@ def maybe_add_vertex(G,H,u,v,c_ids):
 def weight_cluster_edge(G,H,u,v,c_ids):
     return sum(1 if G.edge( i,j ) else 0 for i in c_ids[u] for j in c_ids[v])
             
-
-
-
 def get_cluster_graph(G,c_ids):
     H = gt.Graph(directed=False)
     n,m = len(c_ids), G.num_vertices()
@@ -146,9 +143,6 @@ def get_cluster_distances(G,c_ids):
     return (d + d.T) / 2
 
 def compute_graph_cluster_metrics(G,X,c_ids):
-    # c_ids,state = get_cluster_ids(G)
-    # H = get_cluster_graph(G,c_ids)
-    # high_d = apsp(H)
     high_d = get_cluster_distances(G,c_ids)
     low_d = find_cluster_centers(X,c_ids)
 

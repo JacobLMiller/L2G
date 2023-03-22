@@ -30,3 +30,10 @@ def write_edgelist(G,fpath,delimiter=" "):
     header = f"{G.num_vertices()} {G.num_edges()}"
     np.savetxt(fpath,E,delimiter=delimiter,fmt="%d",header=header,comments="")
 
+def read_cids(Gname):
+    import json 
+    with open(f'cluster_ids/{Gname}.json') as json_file:
+        data = json.load(json_file)
+    json_file.close()
+    return [set(d) for d in data]
+
