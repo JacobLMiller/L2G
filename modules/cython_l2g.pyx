@@ -1,4 +1,5 @@
 import numpy as np 
+import random
 
 #This resource is good: https://byumcl.bitbucket.io/bootcamp2014/_downloads/Lab20v1.pdf
 
@@ -6,8 +7,10 @@ cimport numpy as np
 from numpy cimport ndarray as ar
 cimport cython
 
-from libc.stdlib cimport rand, malloc, free
+from libc.stdlib cimport rand, malloc, free, srand
 from libc.math cimport sqrt, log, exp
+
+srand(random.randint(0,100000))
 
 cdef struct Pair:
     int u 
@@ -59,13 +62,12 @@ cdef ar[double] schedule_convergent(Pair *pairs, int n_pairs, int t_max, double 
         
 
 @cython.cdivision(True)
-cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int n_pairs):
+cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int n_pairs,float alpha):
     cdef int epoch, p, i, j
     cdef int n_iter = steps.shape[0]
     cdef Pair pair
     cdef double d_ij, w_ij, mu, step, dx, dy, mag, r, r_x, r_y, gx, gy, repx, repy, s_x, s_y
-    cdef double t = 0.6
-    cdef double l_sum = 1 + t
+    cdef double l_sum = 1 + alpha
     
     for epoch in range(n_iter):
         step = steps[epoch]
@@ -80,7 +82,7 @@ cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int 
             d_ij = pair.d 
             w_ij = pair.w 
 
-            mu = step * w_ij 
+            mu = (step * w_ij) / (d_ij * d_ij)
             if mu > 1: mu = 1
 
             dx = X[i*2] - X[j*2]
@@ -93,14 +95,14 @@ cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int 
 
             mu = step
             if mu > 1: mu = 1
-            gx,gy = dx/mag, dy/mag
+            gx,gy = dx/(mag*mag), dy/(mag*mag)
             repx,repy = (1-w_ij) * (-mu * gx), (1-w_ij) * (-mu * gy) 
             repx /= mag 
             repy /= mag
 
 
-            r_x = (1/l_sum)*s_x + (t/l_sum)*repx 
-            r_y = (1/l_sum)*s_y + (t/l_sum)*repy
+            r_x = (1/l_sum)*s_x + (alpha/l_sum)*repx 
+            r_y = (1/l_sum)*s_y + (alpha/l_sum)*repy
 
             X[i*2] -= r_x
             X[i*2+1] -= r_y
@@ -136,16 +138,17 @@ cdef ar[double] mds_driver(
         int n_iter, 
         double eps,
         int n, 
-        int n_pairs
+        int n_pairs,
+        float alpha
     ):
 
     cdef ar[double] steps = schedule_convergent(pairs,n_pairs, 30, eps, n_iter)
-    pos = sgd(pos,pairs,steps,n,n_pairs)
+    pos = sgd(pos,pairs,steps,n,n_pairs,alpha)
     free(pairs)
 
     return pos
 
-def standard_mds(d,n_iter = 200, init_pos = None,eps=0.01):
+def standard_mds(d,n_iter = 200, init_pos = None,eps=0.01,alpha=0):
     cdef int n = d.shape[0]
     cdef int n_pairs = (n*(n-1))/2
     cdef ar[double] pos = np.random.uniform(-1,1,2*n)
@@ -154,9 +157,9 @@ def standard_mds(d,n_iter = 200, init_pos = None,eps=0.01):
     cdef ar[np.int16_t, ndim=2] w = np.ones(d.shape,dtype=np.int16)
     cdef Pair *pairs = get_pairs(d,w)
 
-    return mds_driver(pos,pairs,n_iter,eps,n,n_pairs).reshape((n,2))
+    return mds_driver(pos,pairs,n_iter,eps,n,n_pairs,alpha).reshape((n,2))
 
-def L2G_opt(d,w,n_iter=200,init_pos=None,eps=0.01):
+def L2G_opt(d,w,n_iter=200,init_pos=None,eps=0.01,alpha=0.6):
     cdef int n = d.shape[0]
     cdef int n_pairs = (n*(n-1))/2
     cdef ar[double] pos = np.random.uniform(-1,1,2*n)
@@ -164,4 +167,4 @@ def L2G_opt(d,w,n_iter=200,init_pos=None,eps=0.01):
 
     cdef Pair *pairs = get_pairs(d,w)
 
-    return mds_driver(pos,pairs,n_iter,eps,n,n_pairs).reshape((n,2))
+    return mds_driver(pos,pairs,n_iter,eps,n,n_pairs,alpha).reshape((n,2))
