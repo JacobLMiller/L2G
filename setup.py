@@ -18,6 +18,9 @@ setup(ext_modules= cythonize(Extension(
 )))
 
 import shutil
+import os 
 
-s = "cython_l2g.cpython-39-x86_64-linux-gnu.so"
-shutil.move(s, f"modules/{s}")
+for f in os.listdir():
+    if "cython_l2g.cpython" in f:
+        shutil.move(f,f"modules/{f}")
+
