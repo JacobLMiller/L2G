@@ -67,6 +67,8 @@ compute quality metric
 
 def apsp(G,weights=None):
     d = np.array( [v for v in gt.shortest_distance(G,weights=weights)] ,dtype=float)
+    if weights:
+        d /= np.sum(d,axis=0)
     return d
 
 

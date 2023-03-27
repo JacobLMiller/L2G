@@ -1,88 +1,19 @@
 import numpy as np 
-import pylab
+import pylab as plt
 from sklearn.metrics import pairwise_distances
-from modules.metrics import get_stress, chen_neighborhood, cluster_distance, cluster_preservation, cluster_preservation2, mahalonobis_metric
+from modules.metrics import get_stress, chen_neighborhood, cluster_distance
 from hd_data.load_data import load_data
 
 from sklearn.neighbors import KNeighborsClassifier
 
 data_name = "imdb"
 
-def knn_accuracy(X,y,n=5):
-    return KNeighborsClassifier(n_neighbors=n).fit(X,y).score(X,y)
+def knn_accuracy(X,y,k=7):
+    return KNeighborsClassifier(n_neighbors=k).fit(X,y).score(X,y)
 
-
-def print_metrics(X,d,H,c_ids):
-    stress = get_stress(X,d)
-    NH = 1-chen_neighborhood(d,X,k=7)
-    cd = cluster_distance(H,X,c_ids)
-    print(f"Stress is {stress}; NH is {NH}; CD is {cd}")
-    return stress, NH, cd
-
-c1 = list()
-for i in range(5):
-    for j in range(5):
-        for k in range(5):
-            c1.append([i,j,k])
-
-grid = np.array(c1)
-
-
-gen_cluster = lambda s: np.random.normal(scale=s, size=[np.random.randint(50,150),3])
-
-stretch = 3
-
-c1 = (grid*0.1) + np.array([0,0,0]) * stretch
-c2 = gen_cluster(0.1) + np.array([0,0,1]) * stretch
-c3 = (grid*0.25) + np.array([0,1,0]) * stretch
-c4 = gen_cluster(0.1) + np.array([0,1,1]) * stretch
-c5 = gen_cluster(0.25) + np.array([1,0,0]) * stretch
-c6 = gen_cluster(0.5) + np.array([1,0,1]) * stretch
-c7 = (grid*0.25) + np.array([1,1,0]) * stretch
-c8 = (grid*0.5) + np.array([1,1,1]) * stretch
-
-c9 = (grid*0.25) + (np.array([4,4,4]) / 8) * stretch
-
-"""
-Arrange 3 clusters on a triangle, take two other clusters raise one higher, lower the other
-Look carefully that no 4 are aligned in any projection
-
-
-Imagine a 3-d cube, create 8 clusters on the 8 corners of the cube, +1 in the center
-Then, replace some clusters with 3d shapes
-
-"""
-
-clusters = [c1,c2,c3,c4,c5,c6,c7,c8,c9]
-# clusters = [c*10 for c in clusters]
-
-data = np.concatenate(clusters,axis=0)
-data.shape
-
-def label_clusters(sizes):
-    return sum([[i] * size for i,size in enumerate(sizes)], [])
-sizes = [c.shape[0] for c in clusters]
-C = label_clusters(sizes)
-# data_name = "3d"
-c_ids = C
-
-
-# data = np.loadtxt("hd_data/fashion-mnist_test.csv",skiprows=1,delimiter=",")
-# # data = data[np.logical_or(data[:,0] == 0, np.logical_or(data[:,0] == 1, data[:,0] == 7))]
-# mask = {0,1,7,9,4}
-# data = data[ [True if data[i,0] in mask else False for i in range(data.shape[0])] ]
-
-# choice = np.random.choice(data.shape[0],size=500,replace=False)
-# data = data[choice]
-# data.shape
-# C = data[:,0]
-# c_ids = C.astype(int)
-# data = data[:,1:]
-# data /= 255
-# data_name = "fashion-mnist"
 
 data, C = load_data(data_name)
-print(data.shape)
+print(f"Data shape is {data.shape}")
 choice = np.random.choice(data.shape[0],size=500,replace=False)
 data = data[choice]
 C = C[choice]
@@ -110,12 +41,12 @@ print([len(c) for c in c_ids])
     
 # data = np.array(data)
 
-# fig = pylab.figure()
+# fig = plt.figure()
 # ax = fig.add_subplot(projection='3d')
 # ax.scatter(data[:,0],data[:,1],data[:,2],c=C)
 # # fig.savefig("figures/3d-og.png")
-# pylab.show()
-# pylab.clf()
+# plt.show()
+# plt.clf()
 
 
 d = pairwise_distances(data)
@@ -124,7 +55,7 @@ from modules.cython_l2g import L2G_opt, standard_mds
 
 from sklearn.manifold import TSNE
 
-fig, ax = pylab.subplots()
+fig, ax = plt.subplots()
 X = TSNE(perplexity=20,init="pca",learning_rate="auto").fit_transform(data)
 scatter = ax.scatter(X[:,0],X[:,1],c=C,alpha=0.6)
 ax.xaxis.set_tick_params(labelbottom=False)
@@ -136,17 +67,17 @@ legend1 = ax.legend(*scatter.legend_elements(),title="Classes", loc="lower right
 ax.add_artist(legend1)
 
 s,n,c = print_metrics(X,d, data,c_ids)
-pylab.suptitle(f"t-SNE {data_name}")
-pylab.savefig(f"figures/{data_name}-tsne.png")
+plt.suptitle(f"t-SNE {data_name}")
+plt.savefig(f"figures/{data_name}-tsne.png")
 t_scores = (s,n,c)
 np.savetxt(f"data/high_dim/tsne_{data_name}.txt",np.array((s,n,c)))
 
-pylab.clf()
+plt.clf()
 
 print([knn_accuracy(X,C,n=n) for n in [10,20,40,80,160]])
 
 from sklearn.manifold import MDS
-fig, ax = pylab.subplots()
+fig, ax = plt.subplots()
 
 X = MDS(dissimilarity="precomputed",n_init=1).fit_transform(d)
 scatter = ax.scatter(X[:,0],X[:,1],c=C,alpha=0.6)
@@ -156,18 +87,18 @@ ax.set_xticks([])
 ax.set_yticks([])
 
 s,n,c = print_metrics(X,d, data,c_ids)
-pylab.suptitle(f"MDS")
-pylab.savefig(f"figures/{data_name}-mds.png")
+plt.suptitle(f"MDS")
+plt.savefig(f"figures/{data_name}-mds.png")
 m_scores = (s,n,c)
 np.savetxt(f"data/high_dim/mds_{data_name}.txt",np.array((s,n,c)))
 
-pylab.clf()
+plt.clf()
 
 print([knn_accuracy(X,C,n=n) for n in [10,20,40,80,160]])
 
 
 import umap
-fig, ax = pylab.subplots()
+fig, ax = plt.subplots()
 
 X = umap.UMAP().fit_transform(data)
 scatter = ax.scatter(X[:,0],X[:,1],c=C,alpha=0.6)
@@ -177,11 +108,11 @@ ax.set_xticks([])
 ax.set_yticks([])
 
 s,n,c = print_metrics(X,d, data,c_ids)
-pylab.suptitle(f"UMAP")
-pylab.savefig(f"figures/{data_name}-umap.png")
+plt.suptitle(f"UMAP")
+plt.savefig(f"figures/{data_name}-umap.png")
 u_scores = (s,n,c)
 np.savetxt(f"data/high_dim/umap_{data_name}.txt",np.array((s,n,c)))
-pylab.clf()
+plt.clf()
 
 print([knn_accuracy(X,C,n=n) for n in [10,20,40,80,160]])
 
@@ -231,7 +162,7 @@ stress, nh,cd = list(), list(), list()
 K = [2,4,8,16,32,64,100,110,120,130,140,150,200,300,500]
 record = np.zeros()
 for k in K:
-    fig, ax = pylab.subplots()
+    fig, ax = plt.subplots()
 
     print(k)
     w = diffusion_weights(d,k=k)
@@ -272,16 +203,16 @@ for k in K:
 
     # legend1 = ax.legend(*scatter.legend_elements(),title="Classes", location="lower right")
     # ax.add_artist(legend1)
-    pylab.suptitle(f"L2G({k})")
-    pylab.savefig(f"figures/{data_name}_l2g_{k}.png")
+    plt.suptitle(f"L2G({k})")
+    plt.savefig(f"figures/{data_name}_l2g_{k}.png")
 
-    pylab.clf()
+    plt.clf()
 
 
 
 
 x = K
-fig, axes = pylab.subplots(1,3)
+fig, axes = plt.subplots(1,3)
 for i,(ax, metric) in enumerate(zip(axes,[stress,nh,cd])):
     ax.plot(x,metric, 'o-', label="L2G w/knn stress")
     ax.plot(x,[m_scores[i]] * len(x), '--', label="MDS_stress")
