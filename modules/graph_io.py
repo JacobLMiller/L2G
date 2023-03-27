@@ -19,6 +19,17 @@ def draw_tsnet_like(G,X,output=None):
 
     gt.graph_draw(G,pos=pos,vertex_fill_color="white",vertex_size=0.00001,edge_color=e_clrs,edge_pen_width=1,output=output)
 
+def plot_data(X,y,alpha=0.6,output=None):
+    fig,ax = plt.subplots()
+    ax.scatter(X[:,0],X[:,1],c=y,alpha=alpha)
+    ax.axis("off")
+
+    if output:
+        fig.savefig(output)
+    else:
+        plt.show()
+    return fig,ax
+
 def read_edgelist(fpath,header=False,delimiter=" "):
     E = np.loadtxt(fpath,delimiter=delimiter,skiprows=1 if header else 0)
     G = gt.Graph(directed=False)
