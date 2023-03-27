@@ -1,6 +1,14 @@
 import graph_tool.all as gt
 import numpy as np 
 
+def L2G(G: gt.Graph, k: int, a=10,weights=None,alpha=0.6):
+    from modules.cython_l2g import L2G_opt 
+    from modules.graph_metrics import apsp 
+    d = apsp(G,weights)
+    w = find_neighbors(G,k,a)
+    return L2G_opt(d,w,alpha=alpha)
+
+
 def sum_diag_powers(L,a):
     print(sum(L ** p for p in range(1,a+1)))
 
