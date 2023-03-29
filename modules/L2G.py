@@ -6,8 +6,7 @@ def L2G(G: gt.Graph, k: int, a=10,weights=None,alpha=0.6):
     from modules.graph_metrics import apsp 
     d = apsp(G,weights)
     w = find_neighbors(G,k,a)
-    return L2G_opt(d,w,alpha=alpha)
-
+    return L2G_opt(d.astype("double"),w.astype(np.int16),alpha=alpha)
 
 def sum_diag_powers(L,a):
     print(sum(L ** p for p in range(1,a+1)))
@@ -49,6 +48,40 @@ def find_neighbors(G,k=5,a=5,eps=0):
 
     return w
 
+
+def k_nearest(d,k=7):
+    
+    w = np.zeros_like(d)
+    for i in range(w.shape[0]):
+        ind = set( np.argsort(d[i])[1:k+1] )
+        for j in ind: 
+            w[i][j] = 1
+            w[j][i] = 1 
+    
+    return w
+
+def diffusion_weights(d,a=5, k = 20, sigma=1):
+    #Transform distance matrix
+    diff = np.exp( -(d**2) / (sigma **2) )
+    diff /= np.sum(diff,axis=0)
+
+    #Sum powers from 1 to a
+    mp = np.linalg.matrix_power
+    A = sum( pow(0.05,i) * mp(diff,i) for i in range(1,a+1) )
+
+    #Find k largest points for each row 
+    Neighbors = set()
+    for i in range(diff.shape[0]):
+        args = np.argsort(A[i])[::-1][1:k+1]
+        for j in args:
+            Neighbors.add( (int(i),int(j)) )
+
+    #Set pairs to 1
+    w = np.zeros_like(diff)
+    for i,j in Neighbors:
+        w[i,j] = 1
+        w[j,i] = 1
+    return w
     
 
 if __name__ == "__main__":

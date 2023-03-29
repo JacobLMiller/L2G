@@ -168,8 +168,10 @@ def avg_lcl_err(X,D):
         err[i] = local / (n-1)
     return err
 
-def find_cluster_centers(X,c_ids):
-    c_ids = [list(c) for c in c_ids]
+def find_cluster_centers(X,y):
+    unq,inv = np.unique(y,return_inverse=True)
+    c_ids = [ list() for _ in unq]
+    [c_ids[inv[i]].append(i) for i,_ in enumerate(y)]
     cluster_centers = np.zeros( (len(c_ids),X.shape[1]) )
     for i,clusters in enumerate(c_ids):
         Xi = X[clusters]
@@ -178,9 +180,9 @@ def find_cluster_centers(X,c_ids):
         cluster_centers[i] = center
     return cluster_centers
 
-def cluster_distance(H,X,c_ids):
-    high_d_clusters = find_cluster_centers(H,c_ids)
-    low_d_clusters = find_cluster_centers(X,c_ids)
+def cluster_distance(H,X,y):
+    high_d_clusters = find_cluster_centers(H,y)
+    low_d_clusters = find_cluster_centers(X,y)
 
     dh = pairwise_distances(high_d_clusters)
     dl = pairwise_distances(low_d_clusters)
@@ -233,3 +235,11 @@ def mahalonobis_metric(HD,LD,c_ids):
             print(f"Distance between cluster {i} and cluster {j} in HD is {comp_avg_mahalanobis(HD_c1,HD_c2,Si)}")
             Si = np.linalg.inv(np.cov(HD_c1.T))
             print(f"Distance between cluster {j} and cluster {i} in HD is {comp_avg_mahalanobis(HD_c2,HD_c1,Si)}")
+
+def knn_accuracy(X,y,k=7):
+    from sklearn.neighbors import KNeighborsClassifier
+    return KNeighborsClassifier(n_neighbors=k).fit(X,y).score(X,y)
+
+
+def compute_metrics(H: np.array,d: np.array,X: np.array,y: np.array):
+    return 1-knn_accuracy(X,y),cluster_distance(H,X,y) ,get_stress(X,d)

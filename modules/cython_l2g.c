@@ -2482,7 +2482,11 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
   double __pyx_v_repy;
   double __pyx_v_s_x;
   double __pyx_v_s_y;
+<<<<<<< HEAD
   CYTHON_UNUSED double __pyx_v_l_sum;
+=======
+  double __pyx_v_l_sum;
+>>>>>>> refs/remotes/origin/main
   __Pyx_LocalBuf_ND __pyx_pybuffernd_X;
   __Pyx_Buffer __pyx_pybuffer_X;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_steps;
@@ -2824,6 +2828,7 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
       /* "cython_l2g.pyx":104
  * 
  * 
+<<<<<<< HEAD
  *             r_x = s_x + (alpha)*repx             # <<<<<<<<<<<<<<
  *             r_y = s_y + (alpha)*repy
  * 
@@ -2841,6 +2846,25 @@ static PyArrayObject *__pyx_f_10cython_l2g_sgd(PyArrayObject *__pyx_v_X, struct 
 
       /* "cython_l2g.pyx":107
  *             r_y = s_y + (alpha)*repy
+=======
+ *             r_x = (1/l_sum)*s_x + (alpha/l_sum)*repx             # <<<<<<<<<<<<<<
+ *             r_y = (1/l_sum)*s_y + (alpha/l_sum)*repy
+ * 
+ */
+      __pyx_v_r_x = (((1.0 / __pyx_v_l_sum) * __pyx_v_s_x) + ((__pyx_v_alpha / __pyx_v_l_sum) * __pyx_v_repx));
+
+      /* "cython_l2g.pyx":105
+ * 
+ *             r_x = (1/l_sum)*s_x + (alpha/l_sum)*repx
+ *             r_y = (1/l_sum)*s_y + (alpha/l_sum)*repy             # <<<<<<<<<<<<<<
+ * 
+ *             X[i*2] -= r_x
+ */
+      __pyx_v_r_y = (((1.0 / __pyx_v_l_sum) * __pyx_v_s_y) + ((__pyx_v_alpha / __pyx_v_l_sum) * __pyx_v_repy));
+
+      /* "cython_l2g.pyx":107
+ *             r_y = (1/l_sum)*s_y + (alpha/l_sum)*repy
+>>>>>>> refs/remotes/origin/main
  * 
  *             X[i*2] -= r_x             # <<<<<<<<<<<<<<
  *             X[i*2+1] -= r_y
@@ -5271,7 +5295,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 28, __pyx_L1_error)
+<<<<<<< HEAD
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 945, __pyx_L1_error)
+=======
+  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 947, __pyx_L1_error)
+>>>>>>> refs/remotes/origin/main
   return 0;
   __pyx_L1_error:;
   return -1;

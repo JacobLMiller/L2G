@@ -11,11 +11,13 @@ from modules.L2G import find_neighbors
 from modules.cython_l2g import L2G_opt, standard_mds
 
 from modules.thesne import tsnet
+from modules.interpolate import interp
 
 from modules.graph_io import draw_tsnet_like as draw
+from modules.graph_io import read_cids
 
 
-K = [4,8,16,32,64,85,100,150,200,400,600]
+K = [8,16,32,64,85,100,125,150,175,200,225,250,400,600]
 
 
 def diffusion_weights(d,a=5, k = 20, sigma=1):
@@ -47,14 +49,27 @@ def embed_l2g(d,num_params,name,G,f_name="transformation"):
     outs = list()
     for i, k in enumerate(K):
         k = int(k) if k < G.num_vertices() else G.num_vertices() - 1
-        w = find_neighbors(G,k=k,a=10)
-        X = L2G_opt(d,w)
+        w = find_neighbors(G,k=k,a=8)
+        X = L2G_opt(d,w,alpha=0.1)
 
         outstr = f"drawings/l2g/{name}_{k}.pdf"
         outs.append(outstr)
         Xs.append(X)
 
     return Xs, outs
+
+def embed_interp(d,num_params,name,G,f_name="interp"):
+    Xs = list()
+    outs = list()
+    spectrum = np.linspace(0,1,6)
+    for i, a in enumerate(spectrum):
+        X = interp(d,interpolate=True,a=a)
+
+        outstr = f"drawings/interp/{name}_{round(a,3)}.pdf"
+        outs.append(outstr)
+        Xs.append(X)
+
+    return Xs, outs    
 
 def embed_tsne(d,num_params,name,G):
     X = tsnet(d)
@@ -84,7 +99,7 @@ def get_zeros(n):
 
 #Function that takes a graph, embedding function, parameter range, num_params, num_repeats
 #Returns list of NP, stress, and draws at drawings/func_name/num_params.pdf
-def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None,state=None):
+def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None):
 
     g_name, _ = g_name.split(".")
     num_params = len(K)
@@ -92,7 +107,7 @@ def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None,state=None):
 
     NE, stress, times = get_zeros(num_params), get_zeros(num_params), get_zeros(num_params)
     m1,m2,m3,m4 = [get_zeros(num_params) for _ in range(4)]
-    for _ in range(num_repeats):
+    for j in range(num_repeats):
         start = time.perf_counter()
         Xs, output = f(d,num_params,g_name,G)
         end = time.perf_counter()
@@ -101,25 +116,22 @@ def embedding(G,d, f,g_name,num_params=5, num_repeats=5,c_ids=None,state=None):
         NE += np.array( [get_neighborhood(X,d) for X in Xs] )
         stress += np.array([get_stress(X,d) for X in Xs])
         times += (end-start)/len(Xs)
+        m1 +=  np.array([compute_graph_cluster_metrics(G,X,c_ids) for X in Xs])
 
-        m = np.array([compute_graph_cluster_metrics(G,X,c_ids) for X in Xs])
-        m1 += m[:,0]
-        m2 += m[:,1] 
-
-        for X,out in zip(Xs,output):
-            draw(G,X,out)
+        if j == 0:
+            for X,out in zip(Xs,output):
+                draw(G,X,out)
 
     
     NE /= num_repeats 
     stress /= num_repeats
     times /= num_repeats
     m1 /= num_repeats
-    m2 /= num_repeats
 
-    return NE,stress, times,m1,m2
+    return NE,stress, times,m1
 
 
-def experiment(n=5):
+def experiment(n=5,fname=""):
     import os
     import pickle
     import copy
@@ -137,8 +149,9 @@ def experiment(n=5):
     e_funcs = {
         "l2g": embed_l2g,
         # # "tsne": embed_tsne,
-        "mds": embed_mds,
-        "umap": embed_umap
+        # "mds": embed_mds,
+        # "umap": embed_umap,
+        # "interp": embed_interp
     }
 
     data = {
@@ -152,18 +165,17 @@ def experiment(n=5):
 
         G = gt.load_graph(f"{path+graph}")
 
-        c_ids, state = get_cluster_ids(G)
+        c_ids = read_cids(graph.split(".")[0])
         d = apsp(G)
         for f_name, f in e_funcs.items():
-            if f_name == "tsne" and G.num_vertices() > 2100: continue
-            NE, stress,times,m1,m2 = embedding(G,d,f,graph,c_ids=c_ids,state=state)
+            if f_name == "tsne" and G.num_vertices() > 1006: continue
+            NE, stress,times,m1 = embedding(G,d,f,graph,c_ids=c_ids)
             data[f_name][graph]["NE"] = 1-NE
             data[f_name][graph]["stress"] = stress
             data[f_name][graph]["time"] = times
             data[f_name][graph]["m1"] = m1
-            data[f_name][graph]["m2"] = m2
     
-            filehandler = open("data/03_19_2.pkl", 'wb') 
+            filehandler = open(fname, 'wb') 
 
             pickle.dump(data, filehandler)
             filehandler.close()
@@ -171,4 +183,4 @@ def experiment(n=5):
     
 
 if __name__ == '__main__':
-    experiment(n=30)
+    experiment(n=30,fname="data/03_28_l2g.pkl")

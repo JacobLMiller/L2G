@@ -19,10 +19,11 @@ def draw_tsnet_like(G,X,output=None):
 
     gt.graph_draw(G,pos=pos,vertex_fill_color="white",vertex_size=0.00001,edge_color=e_clrs,edge_pen_width=1,output=output)
 
-def plot_data(X,y,alpha=0.6,output=None):
+def plot_data(X,y,alpha=0.6,output=None,title=""):
     fig,ax = plt.subplots()
     ax.scatter(X[:,0],X[:,1],c=y,alpha=alpha)
     ax.axis("off")
+    fig.suptitle(title)
 
     if output:
         fig.savefig(output)
@@ -48,9 +49,8 @@ def read_cids(Gname):
     json_file.close()
     return [set(d) for d in data]
 
-def read_table_graphs():
+def get_table_graphs():
     import os
-
     path = 'table_graphs/'
     graph_paths = os.listdir(path)
 

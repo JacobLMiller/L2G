@@ -44,7 +44,7 @@ def draw_table(metric="NE"):
     print(len(rows))
 
     cell_data = np.array(tab_vals)
-    jet = plt.get_cmap("RdYlBu_r")
+    jet = plt.get_cmap("RdYlGn_r")
     colors = np.zeros( (cell_data.shape[0],cell_data.shape[1],4) )
     for i in range(cell_data.shape[0]):
         col_data = cell_data[i]
