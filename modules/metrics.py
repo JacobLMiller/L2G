@@ -184,9 +184,6 @@ def cluster_distance(H,X,c_ids):
 
     dh = pairwise_distances(high_d_clusters)
     dl = pairwise_distances(low_d_clusters)
-    print(dh)
-    print()
-    print(dl)
     return get_stress(low_d_clusters,dh)
 
 

@@ -71,7 +71,7 @@ def embed_mds(d,num_params,name,G):
     return [X], [outstr]
 
 def embed_umap(d,num_params,name,G):
-    from umap import UMAP
+    from umap_test import UMAP
     X = UMAP(metric="precomputed").fit_transform(d)
 
     outstr = f"drawings/umap/{name}.pdf"

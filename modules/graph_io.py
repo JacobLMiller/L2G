@@ -48,3 +48,12 @@ def read_cids(Gname):
     json_file.close()
     return [set(d) for d in data]
 
+def read_table_graphs():
+    import os
+
+    path = 'table_graphs/'
+    graph_paths = os.listdir(path)
+
+    graphs = [(gt.load_graph(f"{path+graph}"),graph) for graph in graph_paths]
+    graphs = sorted(graphs,key=lambda x: x[0].num_vertices())
+    return graphs

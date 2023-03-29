@@ -18,7 +18,7 @@ def embed_tsnet(G,output=None,dr=True,c_ids=None):
     return 1-get_neighborhood(G,X), compute_graph_cluster_metrics(G,X,c_ids),get_stress(X,d)
 
 def embed_umap(G,output=None,dr=True,c_ids=None):
-    from umap import UMAP 
+    from umap_test import UMAP 
     d = apsp(G)
     X = UMAP(metric="precomputed",n_neighbors=10).fit_transform(d)
     if dr: draw(G,X,output)
@@ -108,13 +108,15 @@ def compute_stats(G,n=30):
 
 
 import pylab as plt
-if __name__ == "__main__":
-    gname = "netscience"
+
+def testing():
+    gname = "connected_watts_500"
     G = gt.load_graph(f"graphs/{gname}.dot")
     c_ids = read_cids(gname)
-    n = 30
+    n = 11
 
     K = np.linspace(10,200,n,dtype=np.int32)
+    K = [4,8,16,32,64,85,100,150,200,400,600]
     l2g_vals = gen_l2g_spectrum(G,K,c_ids=c_ids)
 
     mds_vals = embed_mds(G,dr=False,c_ids=c_ids)
@@ -139,5 +141,12 @@ if __name__ == "__main__":
 
     plt.show()
 
+
+if __name__ == "__main__":
+    # G = gt.load_graph("graphs/price_1000.dot")
+    # embed_tsnet(G)
+    from modules.graph_io import read_table_graphs
+    graphs = read_table_graphs()
+    print([g[1] for g in graphs])
 
 

@@ -6,7 +6,7 @@ from hd_data.load_data import load_data
 
 from sklearn.neighbors import KNeighborsClassifier
 
-data_name = "imdb"
+data_name = "har"
 
 def knn_accuracy(X,y,n=5):
     return KNeighborsClassifier(n_neighbors=n).fit(X,y).score(X,y)
@@ -83,16 +83,10 @@ c_ids = C
 
 data, C = load_data(data_name)
 print(data.shape)
-choice = np.random.choice(data.shape[0],size=500,replace=False)
-data = data[choice]
-C = C[choice]
+# choice = np.random.choice(data.shape[0],size=1000,replace=False)
+# data = data[choice]
+# C = C[choice]
 c_ids = C.astype(int)
-
-data /= np.max(data,axis=0)
-
-from sklearn.decomposition import PCA
-
-data = PCA(50).fit_transform(data)
 
 
 d = pairwise_distances(data)
@@ -139,8 +133,6 @@ s,n,c = print_metrics(X,d, data,c_ids)
 pylab.suptitle(f"t-SNE {data_name}")
 pylab.savefig(f"figures/{data_name}-tsne.png")
 t_scores = (s,n,c)
-np.savetxt(f"data/high_dim/tsne_{data_name}.txt",np.array((s,n,c)))
-
 pylab.clf()
 
 print([knn_accuracy(X,C,n=n) for n in [10,20,40,80,160]])
@@ -159,8 +151,6 @@ s,n,c = print_metrics(X,d, data,c_ids)
 pylab.suptitle(f"MDS")
 pylab.savefig(f"figures/{data_name}-mds.png")
 m_scores = (s,n,c)
-np.savetxt(f"data/high_dim/mds_{data_name}.txt",np.array((s,n,c)))
-
 pylab.clf()
 
 print([knn_accuracy(X,C,n=n) for n in [10,20,40,80,160]])
@@ -180,7 +170,6 @@ s,n,c = print_metrics(X,d, data,c_ids)
 pylab.suptitle(f"UMAP")
 pylab.savefig(f"figures/{data_name}-umap.png")
 u_scores = (s,n,c)
-np.savetxt(f"data/high_dim/umap_{data_name}.txt",np.array((s,n,c)))
 pylab.clf()
 
 print([knn_accuracy(X,C,n=n) for n in [10,20,40,80,160]])
@@ -224,17 +213,14 @@ def diffusion_weights(d,a=5, k = 20, sigma=1):
 import graph_tool.all as gt
 from modules.graph_metrics import apsp
 from modules.L2G import L2G
-from sklearn.manifold import TSNE
-
 
 stress, nh,cd = list(), list(), list()
 K = [2,4,8,16,32,64,100,110,120,130,140,150,200,300,500]
-record = np.zeros()
 for k in K:
     fig, ax = pylab.subplots()
 
     print(k)
-    w = diffusion_weights(d,k=k)
+    w = k_nearest(d,k=k)
     w = w.astype(np.int16)
 
     n = w.shape[0]
@@ -244,13 +230,13 @@ for k in K:
         for j in range(i):
             if w[i,j] == 1: G.add_edge(i,j)
     wd = apsp(G)
+    # Xw = TSNE(metric="precomputed").fit_transform(wd)
 
-    G,dists = gt.generate_knn(data,k=2)
+    G,dists = gt.generate_knn(data,k=7)
+    arr_dists = dists.a 
+    dists.a = np.exp( -(arr_dists**2) / (1 **2) )
+    X = L2G(G,k,alpha=0.1)
 
-    # X = L2G(G,k,a=5)
-    d = d.astype("double")
-    X = L2G_opt(d,w)
-    # X = Xw
 
     # X = L2G_opt(wd,w,n_iter=200,alpha=0.6)
     # X = Xw
