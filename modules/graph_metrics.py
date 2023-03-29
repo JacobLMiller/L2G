@@ -150,6 +150,11 @@ def compute_graph_cluster_metrics(G,X,c_ids):
 
     return get_stress(low_d,high_d)
 
+def get_metrics(G: gt.Graph,X: np.array,d: np.array,c_ids: list[set]):
+    ne = 1-get_neighborhood(G,X)
+    cd = compute_graph_cluster_metrics(G,X,c_ids)
+    st = get_stress(X,d)
+    return ne,cd,st
 
 if __name__ == "__main__":
     G = gt.load_graph("graphs/connected_watts_400.dot")

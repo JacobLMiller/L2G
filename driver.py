@@ -11,6 +11,7 @@ from modules.graph_io import read_cids
 from modules.graph_metrics import get_stress, get_neighborhood, compute_graph_cluster_metrics, get_cluster_ids
 
 
+
 def embed_tsnet(G,output=None,dr=True,c_ids=None):
     d = apsp(G)
     X = tsnet(d)
@@ -34,15 +35,15 @@ def embed_mds(G,output=None,dr=True,c_ids=None):
     return 1-get_neighborhood(G,X), compute_graph_cluster_metrics(G,X,c_ids), get_stress(X,apsp(G)),
 
 
-def gen_l2g_spectrum(G,K=[10,35,72,100,1000],c_ids=None):
+def gen_l2g_spectrum(G,K=[10,35,72,100,1000],c_ids=None,alpha=0.6):
     d = apsp(G)
     print(d.dtype)
     s,n,c = list(), list(), list()
     for k in K:
         k = int(k) if k < G.num_vertices() else G.num_vertices() - 1
         print(k)
-        w = find_neighbors(G,k=k,a=50)
-        X = L2G_opt(d,w)
+        w = find_neighbors(G,k=k,a=8)
+        X = L2G_opt(d,w,alpha=alpha)
         s.append(get_stress(X,d))
         n.append(1-get_neighborhood(G,X))
         c.append(compute_graph_cluster_metrics(G,X,c_ids))
@@ -106,16 +107,14 @@ def compute_stats(G,n=30):
         umap_vals = tuple_add(umap_vals,embed_mds(G,dr=False))
     return [e/n for e in mds_vals], [e/n for e in tsnet_vals], [e/n for e in umap_vals]
 
-
-import pylab as plt
-if __name__ == "__main__":
-    gname = "netscience"
+def testing():
+    gname = "connected_watts_500"
     G = gt.load_graph(f"graphs/{gname}.dot")
     c_ids = read_cids(gname)
-    n = 30
+    n = 10
 
     K = np.linspace(10,200,n,dtype=np.int32)
-    l2g_vals = gen_l2g_spectrum(G,K,c_ids=c_ids)
+    l2g_vals = gen_l2g_spectrum(G,K,c_ids=c_ids,alpha=0.01)
 
     mds_vals = embed_mds(G,dr=False,c_ids=c_ids)
     tsnet_vals = embed_tsnet(G,dr=False,c_ids=c_ids)
@@ -137,7 +136,14 @@ if __name__ == "__main__":
         ax.set_title(titles[i])
 
 
-    plt.show()
+    plt.show()    
+
+
+import pylab as plt
+if __name__ == "__main__":
+    # G = gt.load_graph("graphs/block_2000.dot")
+    # embed_tsnet(G,output="tsnet_block_2000.pdf")
+    testing()
 
 
 
