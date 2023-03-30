@@ -101,8 +101,8 @@ cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int 
             repy /= mag
 
 
-            r_x = (1/l_sum)*s_x + (alpha/l_sum)*repx 
-            r_y = (1/l_sum)*s_y + (alpha/l_sum)*repy
+            r_x = s_x + (alpha)*repx 
+            r_y = s_y + (alpha)*repy
 
             X[i*2] -= r_x
             X[i*2+1] -= r_y

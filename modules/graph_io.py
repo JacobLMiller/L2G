@@ -56,6 +56,5 @@ def get_table_graphs():
     graph_paths = os.listdir(path)
 
     graphs = [(gt.load_graph(f"{path+graph}"),graph) for graph in graph_paths]
-    return sorted(graphs,key=lambda x: x[0].num_vertices())
-
-
+    graphs = sorted(graphs,key=lambda x: x[0].num_vertices())
+    return graphs
