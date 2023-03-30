@@ -2,25 +2,37 @@ import pylab as plt
 import numpy as np
 import pickle 
 
-pickleFile = open("../data/03_19_2.pkl","rb")
-data = pickle.load(pickleFile)
-pickleFile.close()
+# pickleFile = open("../data/03_19_2.pkl","rb")
+# data = pickle.load(pickleFile)
+# pickleFile.close()
 
 pickleFile = open("../data/update_tsnet.pkl","rb")
 tsdata = pickle.load(pickleFile)
 pickleFile.close()
 
-data = data | tsdata
+# data = data | tsdata
 
-def update_colors(colors,row,i,jet):
-    colors[i*2,:] = jet(0)
+pickleFile = open("../data/03_28_unioned.pkl","rb")
+data = pickle.load(pickleFile)
+pickleFile.close()
+
+for key in tsdata['tsne']:
+    if key in data['tsne'] and tsdata['tsne'][key]["NE"] is not None:
+        data['tsne'][key]["NE"] = tsdata['tsne'][key]["NE"][0]
+        data['tsne'][key]["m1"] = tsdata['tsne'][key]["m1"][0] 
+        data['tsne'][key]["stress"] = tsdata['tsne'][key]["stress"][0]       
+
+
+
+def update_colors(colors,row,i,jet,neutral):
+    colors[i*2,:] = neutral
     colors[i*2,1] = jet(row[0])
     colors[i*2,2] = jet(row[1])
     colors[i*2,4] = jet(row[2])
     colors[i*2,5] = jet(row[3])
 
     ind = i*2+1
-    colors[ind,:] = jet(0)
+    colors[ind,:] = neutral
     colors[ind,0] = jet(row[4])
     colors[ind,3] = jet(row[5])
     colors[ind,6] = jet(row[6])
@@ -33,34 +45,40 @@ def draw_table(metric="NE"):
     graphs = list(data['l2g'].keys())
 
     cmap = plt.get_cmap("gist_yarg")
-    colors = np.zeros( (44,7,4) )
+    # cmap = plt.get_cmap("RdYlGn_r")
+    colors = np.zeros( (len(graphs) * 2,7,4) )
 
     i = 0
+    row_to_cell = {
+        0: np.array([0,1]),
+        1: np.array([0,2]),
+        2: np.array([0,4]), 
+        3: np.array([0,5]),
+        4: np.array([1,0]),                       
+        5: np.array([1,3]),
+        6: np.array([1,5]),
+    }
+    mins = list()
     for graph in graphs:
-        if "connected_watts_1000" in graph: continue
-        # if metric not in data['tsne'][graph]: print(graph)
+
         if data['l2g'][graph][metric] is None: continue
         tab_vals.append(list())
         tab_vals.append(list())
-        bottom = tab_vals[-1]
-        top = tab_vals[-2]
 
-        if graph not in data['tsne']:
-            tsne = 1
-        elif "EVA" in graph:
-            tsne = 1
-        elif data['tsne'][graph][metric] is not None: 
-            tsne = data["tsne"][graph][metric][0]
-        else: tsne = 1
-        umap = data['umap'][graph][metric][0]
-        mds = data["mds"][graph][metric][0]
+        tsne = data['tsne'][graph][metric]
+        umap = data['umap'][graph][metric]
+        mds = data["mds"][graph][metric]
         l2g = data['l2g'][graph][metric]
         l2g1, l2g2, l2g3, l2g4 = l2g[2], l2g[3], l2g[4], l2g[6]
 
         row_data = [l2g1,l2g2,l2g3,l2g4,tsne,umap,mds]
         normal = plt.Normalize(min(row_data),max(row_data))
         jet = lambda x: cmap(normal(x))
-        colors = update_colors(colors,row_data,i,jet)
+        colors = update_colors(colors,row_data,i,jet,cmap(0.5))
+
+        min_loc = row_to_cell[np.argmin(row_data)].copy()
+        min_loc[0] += (i*2)
+        mins.append(min_loc)
 
         fmt = lambda s: str(s)[:6]
         tab_vals[-1] = [fmt(tsne), "", "", fmt(umap), "", "", fmt(mds)]
@@ -75,7 +93,7 @@ def draw_table(metric="NE"):
     # rows = [g.split(".")[0] for g in graphs if "connected_watts_1000" not in g]
     rows = list()
     for g in graphs:
-        if "connected_watts_1000" in g: continue
+        # if "connected_watts_1000" in g: continue
         rows.append(g.split(".")[0])
         rows.append("")
 
@@ -93,12 +111,12 @@ def draw_table(metric="NE"):
     # mins = np.argmin(cell_data,axis=1)
     # cell_data = [[str(s)[:6] for s in row] for row in cell_data]
 
-    if metric == "m1":
-        bad = [rows.index("12square"),
-            rows.index("powerlaw300"),
-            rows.index("494_bus"),
-            rows.index("btree9"),
-            rows.index("EVA")]
+    # if metric == "m1":
+    #     bad = [rows.index("12square"),
+    #         rows.index("powerlaw300"),
+    #         rows.index("494_bus"),
+    #         rows.index("btree9"),
+    #         rows.index("EVA")]
         # for i in bad:
         #     cell_data[i] = ["N/A" for _ in cell_data[i]]
         #     colors[i,:] = jet(0.5)
@@ -117,13 +135,13 @@ def draw_table(metric="NE"):
         colWidths=[0.1 for _ in columns]
     )
     
-    # for i,j in enumerate(mins):
-    #     table[i+1,j].set_text_props(weight="bold")
+    for cell in mins:
+        table[cell[0]+1,cell[1]].set_text_props(weight="bold")
 
     # fig.tight_layout()
     fig.set_figheight(15)
     fig.set_figwidth(15)
-    table.scale(1,0.6)
+    table.scale(1,0.55)
 
     # table.auto_set_font_size(False)
     # table.set_fontsize(24)
