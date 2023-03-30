@@ -37,20 +37,21 @@ def draw_table(metric="NE"):
         row.append(data['l2g'][graph][metric][4])
         row.append(data['l2g'][graph][metric][6])        
         row.append(data["mds"][graph][metric][0])
+    
 
     rows = [g.split(".")[0] for g in graphs if "connected_watts_1000" not in g]
     columns = ["tsNET","k=16", "k=32", "umap", "k=64", "k=100","MDS"]
 
-    print(len(rows))
 
     cell_data = np.array(tab_vals)
-    jet = plt.get_cmap("RdYlGn_r")
+    jet = plt.get_cmap("gist_yarg")
     colors = np.zeros( (cell_data.shape[0],cell_data.shape[1],4) )
     for i in range(cell_data.shape[0]):
         col_data = cell_data[i]
         normal = plt.Normalize(np.min(col_data),np.max(col_data))
         colors[i,:] = jet(normal(col_data))
 
+    mins = np.argmin(cell_data,axis=1)
     cell_data = [[str(s)[:6] for s in row] for row in cell_data]
 
     if metric == "m1":
@@ -63,6 +64,7 @@ def draw_table(metric="NE"):
             cell_data[i] = ["N/A" for _ in cell_data[i]]
             colors[i,:] = jet(0.5)
 
+    colors[:,:,3] = 0.55
     fig,ax = plt.subplots()
     ax.axis("off")
     ax.axis("tight")
@@ -74,6 +76,10 @@ def draw_table(metric="NE"):
         loc="center",
         colWidths=[0.1 for _ in columns]
     )
+    
+    for i,j in enumerate(mins):
+        table[i+1,j].set_text_props(weight="bold")
+
     fig.tight_layout()
 
     # table.auto_set_font_size(False)

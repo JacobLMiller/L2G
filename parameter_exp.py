@@ -16,7 +16,7 @@ def matrix_power_exp(n=5):
     for G,name in graphs:
         d = apsp(G)
         c_ids = read_cids(name.split(".")[0])
-        spectrum = np.arange(1,50,3)
+        spectrum = list(range(1,11))
         n_scores, c_scores, s_scores = np.zeros_like(spectrum,dtype=np.float64),np.zeros_like(spectrum,dtype=np.float64),np.zeros_like(spectrum,dtype=np.float64)
         for i,c in enumerate(spectrum):
             print(f"On graph {name.split('.')[0]} experiment {c}",end='\r')
@@ -148,4 +148,4 @@ def time_driver(n=15):
         measure_time(f,fname,n)
 
 if __name__ == "__main__":
-    time_driver(15)
+    matrix_power_exp(15)

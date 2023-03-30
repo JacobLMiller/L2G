@@ -22,7 +22,7 @@ def append_row(fname: str,new_row: list):
         f_object.close()
 
 
-def run_proj(data_name: str, K=[8,16,32,64,85,100,150,200,300,500], sample=500,save=False):
+def run_proj(data_name: str, K=[8,16,32,64,85,100,150,200,300,500], sample=500,save=False,legend=()):
 
     data, y = load_data(data_name)
     print(f"Data shape is {data.shape}")
@@ -36,17 +36,17 @@ def run_proj(data_name: str, K=[8,16,32,64,85,100,150,200,300,500], sample=500,s
     d = pairwise_distances(data)
 
     X = TSNE(perplexity=20,init="pca",learning_rate="auto").fit_transform(data)
-    plot(X,y,output=f"hd_data/{data_name}/tsne.png",title=f"{data_name.upper()} t-SNE")
+    plot(X,y,output=f"hd_data/{data_name}/tsne.png",title=f"{data_name.upper()} t-SNE",legend=legend)
     metrics = compute_metrics(data,d,X,y)
     if save: append_row(f"hd_data/{data_name}/tsne_metrics.txt",metrics)
 
     X = MDS(dissimilarity="precomputed",n_init=1).fit_transform(d)
-    plot(X,y,output=f"hd_data/{data_name}/mds.png",title=f"{data_name.upper()} MDS")
+    plot(X,y,output=f"hd_data/{data_name}/mds.png",title=f"{data_name.upper()} MDS",legend=legend)
     metrics = compute_metrics(data,d,X,y)
     if save: append_row(f"hd_data/{data_name}/mds_metrics.txt",metrics)
 
     X = UMAP().fit_transform(data)
-    plot(X,y,output=f"hd_data/{data_name}/umap.png",title=f"{data_name.upper()} UMAP")
+    plot(X,y,output=f"hd_data/{data_name}/umap.png",title=f"{data_name.upper()} UMAP",legend=legend)
     metrics = compute_metrics(data,d,X,y)
     if save: append_row(f"hd_data/{data_name}/umap_metrics.txt",metrics)
 
@@ -63,19 +63,27 @@ def run_proj(data_name: str, K=[8,16,32,64,85,100,150,200,300,500], sample=500,s
         if save: append_row(f"hd_data/{data_name}/l2g_{k}_metrics.txt",metrics)
 
 if __name__ == "__main__":
-    datasets = [
-        "har",
-        "fashion-mnist",
-        "imdb",
-        "mnist",
-        "coil20",
-        "cifar10",
-        "cnae9",
-        "fmd",
-        "spambase"
-    ]
+    # datasets = [
+    #     "har",
+    #     "fashion-mnist",
+    #     "imdb",
+    #     "mnist",
+    #     "coil20",
+    #     "cifar10",
+    #     "cnae9",
+    #     "fmd",
+    #     "spambase"
+    # ]
 
-    for ds in datasets:
-        for i in range(15):
-            run_proj(ds,sample=1000,save=True)
-    # run_proj("har",sample=-1)
+    # for ds in datasets:
+    #     for i in range(15):
+    #         run_proj(ds,sample=1000,save=True)
+    legend = (
+        "WALKING",
+        "WALKING_UPSTAIRS",
+        "WALKING_DOWNSTAIRS",
+        "SITTING",
+        "STANDING",
+        "LAYING"
+    )
+    run_proj("har",sample=-1,legend=legend)
