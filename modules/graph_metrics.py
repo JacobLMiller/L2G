@@ -29,6 +29,22 @@ def get_stress(X,d):
     #print("a is ",min_a.x)
     return stress(a=min_a.x)
 
+def normal_stress(X,d):
+    N = len(X)
+    ss = (X * X).sum(axis=1)
+    diff = np.sqrt(abs(ss.reshape((N,1)) + ss.reshape((1,N)) - 2 * np.dot(X,X.T)))
+    np.fill_diagonal(diff, 0)
+    stress = lambda a:  np.sum( np.square( np.divide( (a*diff-d), d , out=np.zeros_like(d), where=d!=0) ) )
+
+    from scipy.optimize import minimize_scalar
+    min_a = minimize_scalar(stress)
+
+    ss = 0 
+    for i in range(N):
+        for j in range(i):
+            ss += (d[i,j] * d[i,j])
+    return stress(a=min_a.x) / ss
+
 
 def normalised_kendall_tau_distance(values1, values2):
     """Compute the Kendall tau distance."""
@@ -113,11 +129,15 @@ def get_cluster_graph(G,c_ids):
     return H
     
 
-def get_neighborhood(G,X):
+def get_neighborhood(G: gt.Graph, X: np.ndarray, r=2):
     d = pairwise_distances(X)
     NE = 0
     for v in G.iter_vertices():
         neighbors = set(G.iter_all_neighbors(v))
+        for _ in range(r-1):
+            for u in neighbors.copy():
+                neighbors.update(G.iter_all_neighbors(u))
+
         k = len(neighbors)
         if k == 0: continue
         top_k = set(np.argsort(d[v])[1:k+1])
@@ -154,34 +174,62 @@ def get_metrics(G: gt.Graph,X: np.array,d: np.array,c_ids: list[set]):
     ne = 1-get_neighborhood(G,X)
     cd = compute_graph_cluster_metrics(G,X,c_ids)
     st = get_stress(X,d)
-    return ne,cd,st
+    tst = compute_cluster_metric(G,X,c_ids)
+    return ne,tst,st
 
 if __name__ == "__main__":
-    G = gt.load_graph("graphs/connected_watts_400.dot")
+    G = gt.load_graph("graphs/12square.dot")
+
+    n = G.num_vertices()
+    rep = 20
+
+    layout = np.random.uniform(-1,1,(n,2))
+
+    d = apsp(G)
+
+    random_layouts_vahan = list()
+    random_layouts = list()
+    random_np = list()
+    for _ in range(rep):
+        X = np.random.uniform(-20,20,(n,2))
+        random_layouts_vahan.append(normal_stress(X,d))
+        random_layouts.append(get_stress(X,d))
+        random_np.append(get_neighborhood(G,X))
+
+    tsne_layouts_vahan = list()
+    tsne_layouts = list()
+    from sklearn.manifold import TSNE
+    for _ in range(rep):
+        X = TSNE(metric="precomputed").fit_transform(d)
+        tsne_layouts_vahan.append(normal_stress(X,d))
+        tsne_layouts.append(get_stress(X,d))
+
+    mds_layouts_vahan = list()
+    mds_layouts = list()
+    from s_gd2 import layout_convergent
+    I = [u for u,_ in G.iter_edges()]
+    J = [v for _,v in G.iter_edges()]    
+    for _ in range(rep):
+        X = layout_convergent(I,J)
+        mds_layouts_vahan.append(normal_stress(X,d))
+        mds_layouts.append(get_stress(X,d))
 
 
-    from modules.L2G import L2G,get_w
-    w = get_w(G,k=30)
-    X = L2G(apsp(G),weighted=True,w=w).solve(100)
-    # X = L2G(apsp(G),weighted=False).solve(100)
+    import pylab as plt 
+    plt.plot([0]*rep, random_layouts, 'o', alpha=0.3, label="random layouts")
+    plt.plot([1]*rep, tsne_layouts, 'o', alpha=0.3, label="tsne layouts") 
+    plt.plot([2]*rep, mds_layouts, 'o', alpha=0.3, label="mds layouts")   
+    plt.suptitle("Old stress computation (rescaling)")    
+    plt.legend()
+    plt.xticks([])
+    plt.show()
 
-    m1,m2,c_ids,state = compute_graph_cluster_metrics(G,X)
-    print(m1,m2)
+    plt.plot([0]*rep, random_layouts_vahan, 'o', alpha=0.3, label="random layouts")
+    plt.plot([1]*rep, tsne_layouts_vahan, 'o', alpha=0.3, label="tsne layouts") 
+    plt.plot([2]*rep, mds_layouts_vahan, 'o', alpha=0.3, label="mds layouts")   
+    plt.suptitle("Normalized stress computation (division by sum of square graph distances)")    
+    plt.legend()
+    plt.xticks([])
+    plt.show()    
 
-    def get_c_id(v):
-        for i,c in enumerate(c_ids):
-            if v in c:
-                return i
-
-    clusters = [cmap[get_c_id(v)] for v in G.iter_vertices()]
-    clust_vp = G.new_vp("string",vals=clusters)
-
-    pos = G.new_vp("vector<float>")
-    pos.set_2d_array(X.T)
-    state.draw(pos=pos)
-    # gt.graph_draw(G,pos=pos,vertex_fill_color=clust_vp)
-
-    cX = find_cluster_centers(X,c_ids)
-    import pylab 
-    pylab.scatter(cX[:,0],cX[:,1])
-    pylab.show()
+               
