@@ -6,6 +6,15 @@ Required packages are listed in requirements.txt. You can install all with
 
 ```pip install -r requirements.txt```
 
+## Compile cpython
+You'll first need to compile the L2G optimization script on your machine. Once cpython is installed, you can do this by 
+
+`python setup.py build_ext --inplace` 
+
+If there are no errors, it should be good to go. 
+
+## Usage
+
 ```
 Usage: layout.py [-k K] [--alpha ALPHA] [--epsilon EPSILON] [--max_iter MAX_ITER]  [--output OUTPUT] input_graph
 
