@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     # Input
     parser.add_argument('input_graph')
-    parser.add_argument('--k', '-k', type=int, help='Number of most-connected neighbors to find')
+    parser.add_argument('--k', '-k', default=30, type=int, help='Number of most-connected neighbors to find')
     parser.add_argument('--tau', '-t', type=float, default=0.6, help='Strength of the repulsive force. Should be a nonnegative value between 0 and 1, 1 being equally as strong as the MDS term.')
     parser.add_argument("--alpha", "-a", type=int, default = 5, help="Number of powers to consider in adjacency matrix")
     parser.add_argument('--epsilon', '-e', type=float, default=1e-7, help='Threshold for convergence.')
@@ -36,11 +36,14 @@ if __name__ == '__main__':
     tau = args.tau
 
     print(f"Reading input graph: {graph_name}")
-    G = gt.load_graph(args.input_graph)
+    if args.input_graph.split(".")[-1] == 'txt':
+        from modules.graph_io import read_edgelist
+        G = read_edgelist(args.input_graph,header=True)
+    else: G = gt.load_graph(args.input_graph)
     print(f"{graph_name}: |V|={G.num_vertices()}, |E|={G.num_edges()}")
 
     start = time.perf_counter()
-    from modules.graph_metrics import apsp 
+    from modules.metrics import apsp 
     d = apsp(G)
 
     from modules.L2G import find_neighbors 

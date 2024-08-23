@@ -2,7 +2,7 @@ import graph_tool.all as gt
 import numpy as np
 import pylab as plt
 from modules.graph_io import get_table_graphs, read_cids
-from modules.graph_metrics import apsp, get_metrics
+from modules.metrics import apsp, get_metrics
 from modules.L2G import find_neighbors 
 from modules.cython_l2g import L2G_opt
 from umap import UMAP

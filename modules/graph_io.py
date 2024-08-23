@@ -35,7 +35,7 @@ def plot_data(X,y,alpha=0.6,output=None,title=""):
 def read_edgelist(fpath,header=False,delimiter=" "):
     E = np.loadtxt(fpath,delimiter=delimiter,skiprows=1 if header else 0)
     G = gt.Graph(directed=False)
-    G.add_edge_list([(u,v) for u,v in E])
+    G.add_edge_list([(u,v) for u,v,_ in E])
     return G
 
 def write_edgelist(G,fpath,delimiter=" "):

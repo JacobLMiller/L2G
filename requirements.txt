@@ -1,0 +1,7 @@
+Cython==3.0.10
+graph_tool==2.11
+matplotlib==3.9.2
+numpy==2.1.0
+s_gd2==1.8.1
+scikit_learn==1.5.1
+scipy==1.14.1
