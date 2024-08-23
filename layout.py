@@ -50,7 +50,8 @@ if __name__ == '__main__':
     from modules.cython_l2g import L2G_opt
     X = L2G_opt(d,w,n_iter=max_iter,eps=eps)
 
-    print(f"Complete! Layout took {time.perf_counter()-start :6.4f} seconds")
+    from modules.metrics import get_stress
+    print(f"Complete! Layout took {time.perf_counter()-start :6.4f} seconds. The stress is {get_stress(X,d)}")
 
     from modules.graph_io import draw_tsnet_like as draw 
     draw(G,X,args.output)

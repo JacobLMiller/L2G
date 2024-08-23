@@ -114,7 +114,7 @@ cdef ar[double] sgd(ar[double] X, Pair *pairs, ar[double] steps, int n_vert,int 
 
 cdef Pair *get_pairs(ar[double, ndim=2] d, ar[np.int16_t,ndim=2] w):
     cdef int n = d.shape[0]
-    cdef int n_pairs = (n * (n-1) ) / 2
+    cdef int n_pairs = (n * (n-1) ) // 2
     cdef Pair *pairs = <Pair *> malloc(
         n_pairs * sizeof(Pair)
     )
@@ -150,7 +150,7 @@ cdef ar[double] mds_driver(
 
 def standard_mds(d,n_iter = 200, init_pos = None,eps=0.01,alpha=0):
     cdef int n = d.shape[0]
-    cdef int n_pairs = (n*(n-1))/2
+    cdef int n_pairs = (n*(n-1))//2
     cdef ar[double] pos = np.random.uniform(-1,1,2*n)
     if init_pos: pos = init_pos
 
@@ -161,7 +161,7 @@ def standard_mds(d,n_iter = 200, init_pos = None,eps=0.01,alpha=0):
 
 def L2G_opt(d,w,n_iter=200,init_pos=None,eps=0.01,alpha=0.6):
     cdef int n = d.shape[0]
-    cdef int n_pairs = (n*(n-1))/2
+    cdef int n_pairs = (n*(n-1))//2
     cdef ar[double] pos = np.random.uniform(-1,1,2*n)
     if init_pos: pos = init_pos
 

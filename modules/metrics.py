@@ -2,30 +2,24 @@ import numpy as np
 
 from sklearn.metrics import pairwise_distances
 
-# @jit(nopython=True)
-# def get_norm_stress(X,d):
-#     norm, stress, n = np.linalg.norm, 0, len(X)
-#
-#     for i in range(n):
-#         for j in range(n):
-#             stress += pow(d[i][j] - norm(X[i]-X[j]),2)
-#     return stress / np.sum(np.square(d))
-
-
 def get_stress(X,d):
     from math import comb
     N = len(X)
-    ss = (X * X).sum(axis=1)
 
+    #Pairwise drawing distances
+    ss = (X * X).sum(axis=1)
     diff = np.sqrt( abs(ss.reshape((N, 1)) + ss.reshape((1, N)) - 2 * np.dot(X,X.T)) )
 
-    np.fill_diagonal(diff,0)
-    stress = lambda a:  np.sum( np.square( np.divide( (a*diff-d), d , out=np.zeros_like(d), where=d!=0) ) ) / comb(N,2)
+    #Only need the upper triangular of distances
+    X_dist = diff[np.triu_indices(diff.shape[0],k=1)]
+    d_dist = d[np.triu_indices(diff.shape[0],k=1)]
 
-    from scipy.optimize import minimize_scalar
-    min_a = minimize_scalar(stress)
-    #print("a is ",min_a.x)
-    return stress(a=min_a.x)
+    #Compute the scale factor which gives minimum stress
+    min_scale = np.sum(np.divide(X_dist, d_dist)) / np.sum(np.divide(np.square(X_dist), np.square(d_dist)))
+
+    stress = np.sum(np.divide(np.square(min_scale * X_dist - d_dist),np.square(d_dist)))
+
+    return stress / comb(N,2)
 
 
 def get_cost(X,d,w,t):                 # Define a function
@@ -81,10 +75,6 @@ import graph_tool.all as gt
 def get_neighborhood_graph(X: np.array, G: gt.Graph, rg = 2):
     degs = G.get_total_degrees(G.iter_vertices())
     print(degs)
-
-
-
-
 
 def MAP(G,X):
     V = G.num_vertices()
